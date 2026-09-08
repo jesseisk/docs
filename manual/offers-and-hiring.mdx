@@ -1,7 +1,7 @@
 ---
-title: "Creating Offers and Finalizing Hires in ATS"
+title: "Creating and Sending Offer Letters for New Hires in ATS"
 sidebarTitle: "Offers & Hiring"
-description: "Learn how to create offer letters, send them for e-signature, track acceptance status, and convert accepted offers into employee records."
+description: "Learn how to create offer letters, send them for e-signature, track acceptance status, and convert accepted offers into hired employee records in ATS."
 ---
 
 The Offers module in the ATS Platform handles the final and most consequential step of the hiring process — extending a formal offer to your chosen candidate and guiding it through to a signed agreement. You can generate professional PDF offer letters from reusable templates, fill in compensation details, send the offer directly to the candidate for secure electronic signature, and track the status of the offer in real time. Once an offer is accepted and signed, a single click converts the candidate into an employee record, closing the loop on the entire recruiting workflow.
@@ -60,7 +60,10 @@ flowchart LR
   B --> C{Candidate Decision}
   C -->|Accepts| D[Signed]
   C -->|Declines| E[Declined]
+  C -->|No Response| G[Expired]
   D --> F[Mark as Hired]
+  G --> H[Revise & Resend]
+  H --> B
 ```
 
 ## Offer Templates

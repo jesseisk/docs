@@ -1,5 +1,5 @@
 ---
-title: "Candidates API — Manage Candidate Profiles"
+title: "Candidates API — Create and Manage Candidate Profiles"
 sidebarTitle: "Candidates API"
 description: "Full CRUD reference for the Candidates resource: list, create, retrieve, and update candidate profiles and fetch their application history."
 ---
@@ -271,6 +271,48 @@ curl -X PUT https://api.ats-platform.com/v2/candidates/cand_xyz789 \
 ### Response
 
 The response returns the full updated candidate object in the same shape as `GET /v2/candidates/{id}`.
+
+```json
+{
+  "id": "cand_xyz789",
+  "full_name": "Jane Smith",
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "email": "jane.smith@example.com",
+  "phone": "+1-555-0199",
+  "source": "LinkedIn",
+  "resume_url": "https://storage.ats-platform.com/resumes/cand_xyz789.pdf",
+  "linkedin_url": "https://linkedin.com/in/jane-smith-dev",
+  "profile": {
+    "tags": ["senior", "backend", "python"],
+    "recruiter_notes": "Strong systems design background. Fast follow-up.",
+    "gdpr_consent": true,
+    "gdpr_consent_at": "2025-06-10T08:45:00Z"
+  },
+  "applications": [
+    {
+      "id": "app_abc123",
+      "job_id": "job_1a2b3c4d",
+      "job_title": "Senior Software Engineer",
+      "stage": "Technical Interview",
+      "status": "active",
+      "applied_at": "2025-06-10T09:00:00Z"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc_001",
+      "type": "resume",
+      "filename": "jane_smith_resume.pdf",
+      "url": "https://storage.ats-platform.com/resumes/cand_xyz789.pdf",
+      "uploaded_at": "2025-06-10T08:45:00Z"
+    }
+  ],
+  "application_count": 1,
+  "created_at": "2025-06-10T08:45:00Z",
+  "updated_at": "2025-07-15T10:00:00Z"
+}
+```
 
 ---
 

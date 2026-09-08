@@ -239,6 +239,28 @@ curl -X PUT https://api.ats-platform.com/v2/interviews/int_001 \
   }'
 ```
 
+### Response
+
+```json
+{
+  "id": "int_001",
+  "application_id": "app_abc123",
+  "type": "video",
+  "status": "scheduled",
+  "scheduled_at": "2025-07-22T15:00:00Z",
+  "duration_minutes": 90,
+  "meeting_link": "https://meet.ats-platform.com/r/int_001",
+  "calendar_event_id": "cal_evt_88xyz",
+  "interviewers": [
+    { "id": "user_001", "name": "Alice Chen", "email": "alice@company.com" },
+    { "id": "user_002", "name": "Bob Nguyen", "email": "bob@company.com" }
+  ],
+  "notes": "Focus on system design and scalability trade-offs.",
+  "created_at": "2025-07-15T10:00:00Z",
+  "updated_at": "2025-07-15T11:00:00Z"
+}
+```
+
 ---
 
 ## DELETE /v2/interviews/{id}
