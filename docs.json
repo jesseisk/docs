@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "luma",
-  "name": "ATS Platform",
+  "theme": "maple",
+  "name": "ATS MatchCraft",
   "colors": {
     "primary": "#2563EB",
     "light": "#60A5FA",
