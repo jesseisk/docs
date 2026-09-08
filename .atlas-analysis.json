@@ -1,0 +1,118 @@
+{
+  "projectType": "saas",
+  "projectName": "ATS Platform",
+  "projectDescription": "A modern Applicant Tracking System (ATS) that streamlines the full recruitment lifecycle — from job posting and candidate sourcing to interviews, offers, and onboarding — built to accelerate smarter hiring decisions.",
+  "theme": "luma",
+  "primaryColor": "#2563EB",
+  "lightColor": "#60A5FA",
+  "darkColor": "#1E40AF",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "release-notes"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/overview",
+              "concepts/recruitment-workflow",
+              "concepts/user-roles",
+              "concepts/data-model"
+            ]
+          },
+          {
+            "group": "User Manual",
+            "pages": [
+              "manual/dashboard",
+              "manual/job-management",
+              "manual/candidate-management",
+              "manual/interview-scheduling",
+              "manual/offers-and-hiring",
+              "manual/reporting-analytics"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/account-setup",
+              "configuration/pipeline-stages",
+              "configuration/email-templates",
+              "configuration/integrations"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/faq",
+              "troubleshooting/common-issues"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/overview",
+              "api/authentication"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api/jobs",
+              "api/candidates",
+              "api/applications",
+              "api/interviews",
+              "api/webhooks"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "End-to-end recruitment pipeline management",
+    "Job posting creation and multi-channel distribution",
+    "Candidate sourcing, tracking, and profile management",
+    "Configurable hiring stages and custom pipeline workflows",
+    "Interview scheduling with calendar integration",
+    "Offer letter generation and e-signature collection",
+    "Role-based access control (Admin, Recruiter, Hiring Manager, Interviewer)",
+    "Analytics dashboard with funnel reporting and source tracking",
+    "Email template library with automated candidate communications",
+    "REST API and webhook support for third-party integrations",
+    "Document management for resumes, portfolios, and assessments",
+    "Versioned release history for compliance and audit trails"
+  ],
+  "publicApiSurface": [
+    "GET /api/v1/jobs — List all open positions",
+    "POST /api/v1/jobs — Create a new job posting",
+    "GET /api/v1/jobs/{id} — Retrieve job details",
+    "PUT /api/v1/jobs/{id} — Update a job posting",
+    "DELETE /api/v1/jobs/{id} — Archive a job posting",
+    "GET /api/v1/candidates — List candidates",
+    "POST /api/v1/candidates — Add a new candidate",
+    "GET /api/v1/candidates/{id} — Get candidate profile",
+    "PUT /api/v1/candidates/{id} — Update candidate profile",
+    "GET /api/v1/applications — List applications",
+    "POST /api/v1/applications — Submit a new application",
+    "PATCH /api/v1/applications/{id}/status — Update application stage",
+    "GET /api/v1/interviews — List scheduled interviews",
+    "POST /api/v1/interviews — Schedule an interview",
+    "DELETE /api/v1/interviews/{id} — Cancel an interview",
+    "POST /api/v1/webhooks — Register a webhook endpoint",
+    "GET /api/v1/reports/funnel — Candidate funnel report",
+    "GET /api/v1/reports/sources — Source effectiveness report"
+  ]
+}

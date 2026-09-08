@@ -1,0 +1,168 @@
+---
+title: "API Authentication — Keys, Scopes & Security"
+sidebarTitle: "Authentication"
+description: "Learn how to generate API keys, assign permission scopes, authenticate requests with Bearer tokens, and keep your credentials secure."
+---
+
+Every request to the ATS Platform API must be authenticated using an API key passed as a Bearer token in the `Authorization` header. API keys are issued at the organization level and can be scoped to grant only the permissions your integration needs. This page walks you through generating a key, making your first authenticated request, understanding available scopes, and handling key rotation securely.
+
+<Warning>
+  API keys grant access to your entire organization's data within the assigned scopes. **Never commit API keys to source code, check them into version control, or expose them in client-side applications.** Use environment variables or a secrets manager such as AWS Secrets Manager, HashiCorp Vault, or Doppler to store them.
+</Warning>
+
+## Generating an API Key
+
+To create a new API key, navigate to **Settings → API Keys → New Key** in the ATS Platform dashboard. You will be prompted to give the key a descriptive name (e.g., `hris-sync-prod`, `greenhouse-integration`) and select the permission scopes it requires.
+
+<Steps>
+  <Step title="Open API Keys settings">
+    In the left sidebar, click **Settings**, then select **API Keys** from the configuration menu.
+  </Step>
+  <Step title="Create a new key">
+    Click **New Key**, enter a descriptive name that identifies the integration or environment, and select the scopes the key needs.
+  </Step>
+  <Step title="Copy the key immediately">
+    After clicking **Create**, the full API key value is displayed **once only**. Copy it to your secrets manager immediately — you will not be able to retrieve it again. If you lose the key, you must revoke it and create a new one.
+  </Step>
+  <Step title="Configure your integration">
+    Store the key in your environment and pass it in the `Authorization` header on every request (see examples below).
+  </Step>
+</Steps>
+
+<Note>
+  Each API key can be scoped to a subset of available permissions. Assigning only the scopes your integration actually needs follows the principle of least privilege and limits the blast radius if a key is ever compromised.
+</Note>
+
+## Authenticating Requests
+
+Pass your API key as a Bearer token in the `Authorization` header of every request:
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+     https://api.ats-platform.com/v2/jobs
+```
+
+Replace `YOUR_API_KEY` with your actual key value. The header must be present on every request — the API does not support session cookies, query-string tokens, or any other authentication mechanism.
+
+### Multi-Language Examples
+
+<CodeGroup>
+
+```bash curl
+curl -G https://api.ats-platform.com/v2/jobs \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data-urlencode "status=active" \
+  --data-urlencode "limit=20"
+```
+
+```python Python (requests)
+import requests
+
+API_KEY = "YOUR_API_KEY"
+BASE_URL = "https://api.ats-platform.com/v2"
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json",
+}
+
+response = requests.get(
+    f"{BASE_URL}/jobs",
+    headers=headers,
+    params={"status": "active", "limit": 20},
+)
+
+response.raise_for_status()
+jobs = response.json()
+print(jobs)
+```
+
+```javascript JavaScript (fetch)
+const API_KEY = process.env.ATS_API_KEY;
+const BASE_URL = "https://api.ats-platform.com/v2";
+
+const response = await fetch(`${BASE_URL}/jobs?status=active&limit=20`, {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+    "Content-Type": "application/json",
+  },
+});
+
+if (!response.ok) {
+  const error = await response.json();
+  throw new Error(error.error.message);
+}
+
+const jobs = await response.json();
+console.log(jobs);
+```
+
+```javascript Node.js (axios)
+const axios = require("axios");
+
+const client = axios.create({
+  baseURL: "https://api.ats-platform.com/v2",
+  headers: {
+    Authorization: `Bearer ${process.env.ATS_API_KEY}`,
+    "Content-Type": "application/json",
+  },
+});
+
+async function listJobs() {
+  const { data } = await client.get("/jobs", {
+    params: { status: "active", limit: 20 },
+  });
+  return data;
+}
+
+listJobs().then(console.log).catch(console.error);
+```
+
+</CodeGroup>
+
+## API Key Scopes
+
+When creating an API key, you select one or more scopes that define what the key is permitted to do. A request made with a key that lacks the required scope returns a `403 Forbidden` response.
+
+| Scope | Description |
+|---|---|
+| `jobs:read` | Read job listings and pipeline configurations |
+| `jobs:write` | Create, update, and delete (archive) jobs |
+| `candidates:read` | Read candidate profiles and documents |
+| `candidates:write` | Create and update candidate records |
+| `applications:read` | Read applications, stage history, and scorecards |
+| `applications:write` | Update application stages and terminal statuses |
+| `webhooks:manage` | Register, list, and delete webhook subscriptions |
+
+<Note>
+  Read scopes do not imply write access — they are fully independent. Assign `candidates:read` without `candidates:write` to create a read-only reporting integration, for example.
+</Note>
+
+## Rotating and Revoking API Keys
+
+You should rotate API keys periodically as part of your security hygiene, and immediately revoke any key that you suspect has been compromised.
+
+<Steps>
+  <Step title="Create a replacement key">
+    In **Settings → API Keys**, create a new key with the same name and scopes as the one you are replacing. Copy the new key value to your secrets manager.
+  </Step>
+  <Step title="Update your integration">
+    Deploy your integration with the new key value. Confirm that all API calls are succeeding with the new key before proceeding.
+  </Step>
+  <Step title="Revoke the old key">
+    Return to **Settings → API Keys**, find the old key, and click **Revoke**. The key is immediately invalidated — any in-flight requests using it will receive a `401 Unauthorized` response.
+  </Step>
+</Steps>
+
+<Warning>
+  Revoking a key is **irreversible and immediate**. Ensure your integration is fully switched over to the new key before revoking the old one to avoid service interruptions.
+</Warning>
+
+## Handling Authentication Errors
+
+| Response Code | Cause | Resolution |
+|---|---|---|
+| `401 Unauthorized` | Key is missing, malformed, or has been revoked | Verify the `Authorization` header format and that the key is still active |
+| `403 Forbidden` | Key exists but lacks the required scope | Add the necessary scope to the key, or create a new key with the correct scopes |

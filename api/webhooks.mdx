@@ -1,0 +1,268 @@
+---
+title: "Webhooks API — Real-Time Event Notifications"
+sidebarTitle: "Webhooks"
+description: "Learn how to register webhook endpoints, verify payload signatures, handle retries, and react to real-time ATS Platform hiring events in your systems."
+---
+
+Webhooks let your systems react to hiring activity in real time without polling the API. When a significant event occurs in ATS Platform — a new application arrives, a candidate advances to a new pipeline stage, an offer is signed — the platform sends an HTTP POST request to the URL you register with a JSON payload describing the event. This is the most efficient way to keep downstream systems like your HRIS, Slack notifications, data warehouse, or custom dashboards in sync with your hiring pipeline. Registering and managing webhooks requires an API key with the `webhooks:manage` scope.
+
+<Warning>
+  Webhook endpoint URLs **must use HTTPS**. HTTP endpoints are rejected at registration time. Ensure your endpoint has a valid TLS certificate from a trusted certificate authority.
+</Warning>
+
+---
+
+## Supported Event Types
+
+ATS Platform emits webhooks for the following events. Subscribe to only the events your integration needs to keep payload volume manageable:
+
+| Event | Trigger |
+|---|---|
+| `job.created` | A new job is created in the system |
+| `job.status_changed` | A job's status changes (e.g., `draft` → `active`) |
+| `application.created` | A new application is received for any job |
+| `application.stage_changed` | An application moves to a new pipeline stage |
+| `application.hired` | A candidate is marked as hired |
+| `application.rejected` | A candidate is rejected |
+| `interview.scheduled` | A new interview is scheduled for an application |
+| `interview.completed` | An interview is marked as completed |
+| `offer.sent` | An offer letter is sent to a candidate |
+| `offer.signed` | A candidate digitally signs their offer letter |
+
+---
+
+## Registering a Webhook
+
+### POST /v2/webhooks
+
+Register a new webhook endpoint to receive events. You can subscribe to one or more event types per endpoint. Optionally supply a `secret` string — the platform uses it to sign every payload with an HMAC-SHA256 signature so you can verify the request originated from ATS Platform (see [Verifying Signatures](#verifying-webhook-signatures) below).
+
+#### Body Parameters
+
+<ParamField body="url" type="string" required>
+  The HTTPS endpoint URL that ATS Platform should send event payloads to. Must return a `2xx` status code to acknowledge receipt.
+</ParamField>
+
+<ParamField body="events" type="array" required>
+  An array of event type strings to subscribe to. Example: `["application.created", "application.stage_changed", "application.hired"]`. Pass `["*"]` to subscribe to all events.
+</ParamField>
+
+<ParamField body="secret" type="string">
+  A secret string you define. ATS Platform signs each outgoing payload using HMAC-SHA256 with this secret and includes the signature in the `X-ATS-Signature` header. Store this value securely — treat it like an API key.
+</ParamField>
+
+#### Request
+
+```bash
+curl -X POST https://api.ats-platform.com/v2/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-app.com/webhooks/ats",
+    "events": ["application.created", "application.stage_changed", "application.hired"],
+    "secret": "whsec_your_secret_string"
+  }'
+```
+
+#### Response
+
+```json
+{
+  "id": "wh_001",
+  "url": "https://your-app.com/webhooks/ats",
+  "events": ["application.created", "application.stage_changed", "application.hired"],
+  "status": "active",
+  "created_at": "2025-07-15T10:00:00Z"
+}
+```
+
+---
+
+## GET /v2/webhooks
+
+List all registered webhook endpoints for your organization. The response includes each webhook's ID, URL, subscribed event types, and current status.
+
+#### Request
+
+```bash
+curl https://api.ats-platform.com/v2/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+#### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "wh_001",
+      "url": "https://your-app.com/webhooks/ats",
+      "events": ["application.created", "application.stage_changed", "application.hired"],
+      "status": "active",
+      "created_at": "2025-07-15T10:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+## DELETE /v2/webhooks/{id}
+
+Delete a registered webhook. ATS Platform immediately stops sending event payloads to the associated endpoint. This action is irreversible — you must re-register the webhook if you want to resume receiving events.
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the webhook to delete. Example: `wh_001`.
+</ParamField>
+
+#### Request
+
+```bash
+curl -X DELETE https://api.ats-platform.com/v2/webhooks/wh_001 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+A successful deletion returns `204 No Content`.
+
+---
+
+## Webhook Payload Format
+
+Every webhook request is an HTTP POST with a JSON body and the following headers:
+
+| Header | Description |
+|---|---|
+| `Content-Type` | Always `application/json` |
+| `X-ATS-Event` | The event type, e.g., `application.stage_changed` |
+| `X-ATS-Delivery` | A unique UUID for this delivery attempt (useful for idempotency) |
+| `X-ATS-Signature` | HMAC-SHA256 signature of the raw request body (present only if you registered a `secret`) |
+
+### Sample Payload: `application.stage_changed`
+
+```json
+{
+  "event": "application.stage_changed",
+  "timestamp": "2025-07-15T10:32:00Z",
+  "data": {
+    "application_id": "app_abc123",
+    "candidate": {
+      "id": "cand_xyz789",
+      "name": "Jane Smith",
+      "email": "jane@example.com"
+    },
+    "job": {
+      "id": "job_456",
+      "title": "Senior Engineer"
+    },
+    "from_stage": "Phone Screen",
+    "to_stage": "Technical Interview"
+  }
+}
+```
+
+Every payload includes a top-level `event` name, a UTC `timestamp`, and a `data` object whose shape varies by event type. Your endpoint should always acknowledge receipt by returning any `2xx` HTTP status code as quickly as possible — process the payload asynchronously using a queue if your handling logic takes more than a few seconds.
+
+---
+
+## Verifying Webhook Signatures
+
+If you supplied a `secret` when registering your webhook, ATS Platform signs every payload and includes the signature in the `X-ATS-Signature` header using the format `sha256=<hex_digest>`. You should verify this signature on every incoming request to ensure the payload was sent by ATS Platform and has not been tampered with.
+
+<Steps>
+  <Step title="Read the raw request body">
+    Capture the raw bytes of the request body **before** parsing it as JSON. Signature verification must be performed on the exact bytes received.
+  </Step>
+  <Step title="Compute the expected signature">
+    Compute an HMAC-SHA256 digest of the raw body bytes using your webhook `secret` as the key.
+  </Step>
+  <Step title="Compare signatures">
+    Compare your computed digest (prefixed with `sha256=`) to the value in the `X-ATS-Signature` header using a constant-time string comparison to prevent timing attacks.
+  </Step>
+  <Step title="Reject if mismatch">
+    If the signatures do not match, return `401 Unauthorized` and do not process the payload.
+  </Step>
+</Steps>
+
+### Verification Examples
+
+<CodeGroup>
+
+```python Python
+import hmac
+import hashlib
+
+def verify_webhook(payload_bytes: bytes, signature_header: str, secret: str) -> bool:
+    expected = "sha256=" + hmac.new(
+        secret.encode("utf-8"),
+        payload_bytes,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature_header)
+```
+
+```javascript Node.js
+const crypto = require("crypto");
+
+function verifyWebhook(payloadBuffer, signatureHeader, secret) {
+  const expected =
+    "sha256=" +
+    crypto
+      .createHmac("sha256", secret)
+      .update(payloadBuffer)
+      .digest("hex");
+  return crypto.timingSafeEqual(
+    Buffer.from(expected),
+    Buffer.from(signatureHeader)
+  );
+}
+```
+
+</CodeGroup>
+
+---
+
+## Retry Behavior
+
+ATS Platform considers a webhook delivery successful when your endpoint returns any `2xx` HTTP status code within **10 seconds**. If your endpoint is unreachable, returns a non-2xx status, or times out, the platform retries the delivery up to **5 additional times** using exponential backoff:
+
+| Attempt | Delay after previous failure |
+|---|---|
+| 1st retry | 1 minute |
+| 2nd retry | 5 minutes |
+| 3rd retry | 30 minutes |
+| 4th retry | 2 hours |
+| 5th retry | 8 hours |
+
+If all 5 retries fail, the delivery is marked as permanently failed. You can view failed deliveries and manually re-trigger them from **Settings → Webhooks → Delivery Logs** in the dashboard.
+
+<Note>
+  Use the `X-ATS-Delivery` header value as an idempotency key in your processing logic. Because retries resend the same delivery ID, you can safely deduplicate repeated deliveries of the same event.
+</Note>
+
+---
+
+## Testing Webhooks Locally
+
+<Tip>
+  During development, use a tool like **[ngrok](https://ngrok.com)** to expose a local port to a public HTTPS URL, then register that URL as your webhook endpoint. Run `ngrok http 3000` to tunnel to your local port 3000 and use the resulting `https://*.ngrok.io` URL when calling `POST /v2/webhooks`. This lets you receive and inspect live webhook payloads on your laptop without deploying to a staging environment.
+</Tip>
+
+You can also send a test payload to any registered webhook from **Settings → Webhooks** in the dashboard by clicking **Send Test Event** next to the endpoint. The test event uses the `application.stage_changed` payload shape with synthetic data.
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="API Overview" icon="book" href="/api/overview">
+    Understand rate limits, error formats, and pagination before building your integration.
+  </Card>
+  <Card title="Integrations" icon="plug" href="/configuration/integrations">
+    Connect ATS Platform to your HRIS, Slack, and other third-party tools.
+  </Card>
+</CardGroup>

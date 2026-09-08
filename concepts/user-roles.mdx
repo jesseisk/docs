@@ -1,0 +1,69 @@
+---
+title: "User Roles and Permissions in the ATS Platform"
+sidebarTitle: "User Roles"
+description: "Learn about the five role-based access levels in the ATS Platform, how to assign them, and how job-level scoping works for managers and interviewers."
+---
+
+The ATS Platform uses role-based access control (RBAC) to ensure every team member can do their job without accessing data or functionality they shouldn't. When you invite someone to your organization, you assign them one of five predefined roles. That role determines what they can see, create, edit, and delete across the entire platform. This model protects sensitive candidate information, maintains data integrity, and gives you the confidence to add recruiters, hiring managers, and interviewers to the platform without worrying about accidental changes to critical settings.
+
+## Roles and Permissions Reference
+
+The table below summarizes each role, its intended user, and the key permissions it grants.
+
+| Role | Description | Key Permissions |
+|------|-------------|-----------------|
+| **Administrator** | Owners and senior HR operations staff who need full control over the platform. | Manage users and roles; configure all settings; access billing; create, edit, and delete all jobs, candidates, and applications; view all reports; manage integrations and email templates. |
+| **Recruiter** | Talent acquisition professionals who run day-to-day hiring. | Create and manage jobs; manage all candidates and applications across all jobs; move candidates through pipeline stages; send emails to candidates; schedule interviews; generate and send offers; view all reports. Cannot manage users, billing, or organization-level settings. |
+| **Hiring Manager** | Business stakeholders responsible for specific open roles. | View jobs they are assigned to; review candidate profiles and application details for those jobs; add interview feedback and scorecards; leave internal notes; approve or reject offers routed to them. Cannot create jobs or view candidates on jobs they are not assigned to. |
+| **Interviewer** | Team members brought in to conduct structured interviews. | View their upcoming interview schedule; access candidate profiles and attached materials for interviews they are scheduled to conduct; submit scorecards after interviews. Cannot view the broader candidate list, pipeline, or any jobs they are not assigned to as an interviewer. |
+| **Read Only** | Executives, auditors, or stakeholders who need visibility without edit access. | View all jobs, candidates, applications, pipeline stages, and reports. Cannot create, edit, delete, or send anything. Suitable for leadership dashboards or compliance review. |
+
+## Assigning Roles
+
+You can invite new team members and assign their roles at any time from the **Team Members** settings page. You must be an **Administrator** to complete these steps.
+
+<Steps>
+  <Step title="Open Settings">
+    Click your organization name or avatar in the top-left corner of the platform, then select **Settings** from the dropdown menu. This opens the organization settings panel.
+  </Step>
+  <Step title="Navigate to Team Members">
+    In the left sidebar of the Settings panel, click **Team Members**. You'll see a table listing all current users in your organization, their email addresses, assigned roles, and account status (Active, Invited, Suspended).
+  </Step>
+  <Step title="Invite a New User">
+    Click the **Invite Team Member** button in the top-right corner of the Team Members page. Enter the person's email address in the invitation form. You can invite multiple people at once by entering multiple email addresses separated by commas.
+  </Step>
+  <Step title="Assign a Role">
+    Before sending the invitation, select the appropriate role from the **Role** dropdown. The role you assign takes effect immediately upon the invitee accepting the invitation and creating their account. Click **Send Invitation** to deliver the invite email.
+  </Step>
+</Steps>
+
+<Warning>
+  Only **Administrators** can change another user's role after the account has been created. If you need your own role elevated, you must ask an existing Administrator to make the change — you cannot modify your own role. Demoting an Administrator to a lower role will immediately revoke their access to billing, user management, and organization settings.
+</Warning>
+
+## Job-Level Permissions
+
+While Administrators and Recruiters have organization-wide access to all jobs and candidates, **Hiring Managers** and **Interviewers** operate within a narrower scope tied to specific jobs.
+
+### Hiring Manager Scoping
+
+A Hiring Manager only sees the jobs they have been explicitly assigned to. When a Recruiter or Administrator creates or edits a job, they designate one or more Hiring Managers for that role. Those individuals can then view the job's pipeline, review candidate profiles, leave feedback, and participate in the offer approval workflow — but only for that job. They will not see any other jobs, candidates, or pipeline data in the system.
+
+### Interviewer Scoping
+
+An Interviewer's access is even more narrowly scoped. They can only view candidate information for interviews they are personally scheduled to conduct. When a recruiter schedules an interview and adds an Interviewer as a participant, that Interviewer gains temporary access to the relevant candidate's profile and attached materials (resume, cover letter, previous scorecard summaries) for the duration of the interview process. Once the interview is complete and the scorecard is submitted, their access to that candidate record is retained in read-only mode so they can reference their own past feedback.
+
+<Tip>
+  If a Hiring Manager needs visibility into a second job — for example, a manager who is backfilling their own departing employee while also opening a new headcount — simply assign them to both jobs individually. Their dashboard will show all jobs they've been granted access to.
+</Tip>
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Account Setup" icon="gear" href="/configuration/account-setup">
+    Configure your organization profile, security settings, and SSO before adding team members.
+  </Card>
+  <Card title="Platform Overview" icon="map" href="/concepts/overview">
+    Review the core modules and how they map to your team's responsibilities.
+  </Card>
+</CardGroup>

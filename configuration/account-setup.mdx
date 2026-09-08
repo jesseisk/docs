@@ -1,0 +1,115 @@
+---
+title: "Organization and Account Setup Guide for ATS Platform"
+sidebarTitle: "Account Setup"
+description: "Configure your organization profile, invite team members, manage billing, and set notification preferences in the ATS Platform Settings panel."
+---
+
+The ATS Platform's Settings panel is your central hub for configuring every aspect of your organization's recruiting environment. From setting up your company profile and branding to managing team access and billing, a well-configured account ensures your entire hiring team operates from a consistent, professional foundation. Taking a few minutes to complete this setup before you post your first job will save you significant time and prevent the need to re-configure things mid-process.
+
+## Settings Panel Overview
+
+You can access the Settings panel at any time by clicking the gear icon in the left-hand navigation bar. The panel is organized into the following sections:
+
+- **Organization** — Company profile, branding, timezone, language, and careers page URL
+- **Team Members** — User invitations, role assignments, and access management
+- **Billing & Plan** — Subscription details, usage metrics, and plan upgrades
+- **Notifications** — Per-user and organization-wide email notification preferences
+- **Security** — Password policies, two-factor authentication, and SSO configuration
+- **Integrations** — Third-party app connections (see [Integrations](/configuration/integrations) for full details)
+
+<Tip>
+Complete your organization profile — including uploading your company logo and setting your careers page URL — before you invite team members. This ensures that every invitation email your colleagues receive already reflects your company branding, and that they can immediately start working in a fully configured environment without needing to wait for you to finish setup.
+</Tip>
+
+## Initial Organization Setup
+
+Follow these steps to configure your core organization settings when you first log in to ATS Platform.
+
+<Steps>
+  <Step title="Navigate to Settings → Organization">
+    Click the gear icon in the left navigation bar, then select **Organization** from the Settings menu. This opens your organization's profile page.
+  </Step>
+  <Step title="Enter your company name, website, and logo">
+    Fill in your **Company Name** exactly as you want it to appear to candidates in email communications and on your careers page. Enter your **Company Website URL** (e.g., `https://www.yourcompany.com`). To upload your logo, click **Upload Logo** and select a PNG or SVG file — recommended dimensions are 200×60 pixels or larger at a 3:1 aspect ratio. Your logo will appear in candidate-facing emails and on your hosted careers page.
+  </Step>
+  <Step title="Set your timezone and default language">
+    Select your organization's primary **Timezone** from the dropdown. This timezone is used as the default for all interview scheduling, email send times, and reporting date ranges. Choose your **Default Language** for the platform UI and outgoing candidate communications. ATS Platform currently supports English, Spanish, French, German, and Portuguese.
+  </Step>
+  <Step title="Configure your company careers page URL">
+    Enter your desired **Careers Page Slug** in the provided field. This becomes the public URL where candidates can browse and apply to your open roles, formatted as `https://careers.atsplatform.com/your-slug`. You can also configure a **Custom Domain** (e.g., `careers.yourcompany.com`) by entering your domain and following the DNS verification steps shown on screen.
+  </Step>
+  <Step title="Save your changes">
+    Click **Save Organization Settings** at the bottom of the page. A green confirmation banner will appear at the top of the screen. Your careers page will go live immediately using the new settings.
+  </Step>
+</Steps>
+
+## Team Members
+
+The **Team Members** section allows you to invite colleagues, assign roles, and manage who has access to your ATS Platform account. Access it via **Settings → Team Members**.
+
+### Inviting New Users
+
+To invite a team member, click **Invite Team Member** and enter their work email address. Select the appropriate role from the dropdown (see [User Roles](/concepts/user-roles) for a full description of each role's permissions):
+
+- **Admin** — Full access to all settings, jobs, candidates, and billing
+- **Recruiter** — Can manage jobs, candidates, pipelines, and communications
+- **Hiring Manager** — Can view assigned jobs, leave feedback, and submit scorecards
+- **Interviewer** — Read-only access to scheduled interviews and scorecard submission only
+
+Click **Send Invitation**. The invitee will receive an email with a secure link to create their account. Invitations expire after **72 hours**; you can resend or revoke them at any time from the **Pending Invitations** tab.
+
+### Managing Pending Invitations
+
+The **Pending Invitations** tab displays all invitations that have been sent but not yet accepted. For each pending invitation you can:
+
+- **Resend** — Sends a fresh invitation email with a new 72-hour expiry link
+- **Revoke** — Cancels the invitation immediately; the original link will no longer work
+- **Change Role** — Update the role assigned before the invitee accepts
+
+### Managing Existing Team Members
+
+From the **Active Members** list, you can click any team member's name to edit their role, reset their password, or deactivate their account. Deactivating an account immediately revokes the user's access but preserves all of their historical activity (scorecards, notes, emails) in the audit trail.
+
+## Billing & Plan
+
+Navigate to **Settings → Billing & Plan** to view and manage your subscription.
+
+### Viewing Your Current Plan
+
+The Billing page displays your current plan tier (Starter, Pro, or Enterprise), your billing cycle (monthly or annual), and the next renewal date. The **Usage** panel shows real-time metrics for the current billing period, including:
+
+- **Active Jobs** — Number of currently published job postings vs. your plan limit
+- **Team Members** — Number of active seats used vs. your plan limit
+- **Candidate Records** — Total candidates in your database
+
+### Upgrading Your Plan
+
+To upgrade, click **Change Plan** and select the plan that meets your needs. Plan changes take effect immediately, and you will be billed a prorated amount for the remainder of your current billing cycle. Annual plans receive a discount displayed on the plan selection screen.
+
+To update your payment method, navigate to the **Payment Method** tab and click **Update Card**. ATS Platform accepts all major credit cards and ACH bank transfers for annual plans.
+
+## Notifications
+
+Navigate to **Settings → Notifications** to configure when and how you receive email alerts from ATS Platform.
+
+### Organization Default Notifications
+
+Admins can set organization-wide notification defaults that apply to all team members unless they override them personally. The available organization-level triggers are:
+
+- **New Application Received** — Notifies the assigned recruiter when a candidate submits an application to their job
+- **Candidate Stage Change** — Alerts the hiring manager when a candidate moves to a new pipeline stage
+- **Interview Reminder** — Sends a reminder 24 hours before a scheduled interview to all participants
+- **Offer Update** — Notifies the recruiter and hiring manager when an offer letter is signed, declined, or expires
+
+### Per-User Notification Preferences
+
+Each individual user can override the organization defaults for their own account by navigating to their **Profile → Notification Preferences**. This allows, for example, a hiring manager who prefers Slack notifications (via the Slack integration) to turn off ATS Platform email alerts for stage changes without affecting anyone else's settings.
+
+Users can configure notifications for:
+- Digest frequency (real-time, daily digest, or weekly digest)
+- Specific event types to include or exclude
+- Quiet hours (no notifications sent between specified times)
+
+<Note>
+SAML 2.0 Single Sign-On (SSO) is available exclusively on the **Enterprise plan**. SSO allows your team to authenticate using your existing identity provider (Okta, Azure AD, Google Workspace, and others are supported). To configure SSO, navigate to **Settings → Security → Single Sign-On** and follow the SAML metadata exchange steps, or contact your ATS Platform account manager for assisted setup.
+</Note>

@@ -1,0 +1,86 @@
+---
+title: "Third-Party Integrations Configuration for ATS Platform"
+sidebarTitle: "Integrations"
+description: "Connect ATS Platform to Google Calendar, Microsoft Outlook, LinkedIn, Slack, Zapier, and your own systems via REST API and webhooks."
+---
+
+ATS Platform connects to the tools your team already uses, so you can manage your entire hiring process without switching between applications. Integrations eliminate manual data entry, reduce scheduling friction, keep your team informed in real time, and give you the flexibility to build custom automations tailored to your organization's workflows. Whether you want interview invites to appear automatically in your calendar, job postings to go live on LinkedIn with one click, or your HRIS to be notified the moment an offer is signed — integrations make it possible.
+
+## Available Integrations
+
+<CardGroup cols={2}>
+  <Card title="Google Calendar" icon="calendar">
+    Sync interviewer availability directly from Google Calendar and automatically send `.ics` invite files to candidates and interviewers when an interview is scheduled. Prevents double-booking and eliminates the need to manually add events.
+  </Card>
+  <Card title="Microsoft Outlook" icon="envelope">
+    The Microsoft 365 equivalent of the Google Calendar integration. Sync interviewer free/busy data from Exchange and Outlook calendars and send `.ics` invites through your organization's Microsoft 365 tenant.
+  </Card>
+  <Card title="LinkedIn" icon="linkedin">
+    Post open jobs directly to LinkedIn from within ATS Platform and import candidate profiles into your talent pool with a single click. Requires a LinkedIn Recruiter or LinkedIn Jobs account.
+  </Card>
+  <Card title="Slack" icon="slack">
+    Receive real-time Slack notifications for key hiring events — including new applications, candidate stage changes, completed scorecards, and signed offer letters — delivered to any channel you choose.
+  </Card>
+  <Card title="Zapier" icon="bolt">
+    Connect ATS Platform to more than 5,000 third-party apps using Zapier's no-code automation platform. Build custom workflows such as adding new candidates to a Google Sheet, sending a congratulatory message in Slack when an offer is signed, or syncing hired candidates to your HRIS.
+  </Card>
+  <Card title="REST API" icon="code">
+    Build fully custom integrations using the ATS Platform public REST API. Access jobs, candidates, applications, interviews, and more programmatically. See [API Overview](/api/overview) and [Authentication](/api/authentication) to get started.
+  </Card>
+</CardGroup>
+
+<Note>
+The **LinkedIn** and **Slack** integrations are available on the **Pro and Enterprise plans** only. If you are on the Starter plan and need these integrations, navigate to **Settings → Billing & Plan** to upgrade. The Google Calendar, Microsoft Outlook, Zapier, and REST API integrations are available on all plans.
+</Note>
+
+## Connecting Google Calendar
+
+Connecting Google Calendar enables two-way sync: ATS Platform reads your interviewers' availability to suggest open time slots when scheduling, and writes confirmed interviews back to Google Calendar as events with all participant details included.
+
+<Steps>
+  <Step title="Navigate to Settings → Integrations → Google Calendar">
+    Open **Settings** from the left navigation bar, select **Integrations**, and click on the **Google Calendar** tile.
+  </Step>
+  <Step title="Click 'Connect Google Account'">
+    Click the **Connect Google Account** button. You will be redirected to Google's OAuth consent screen.
+  </Step>
+  <Step title="Sign in and grant calendar permissions">
+    Sign in with the Google account you use for work. Review the requested permissions — ATS Platform requires the ability to **read free/busy information** and **create and manage events** on your behalf. Click **Allow** to grant access.
+  </Step>
+  <Step title="Select which calendar to use for interview bookings">
+    After granting permissions, you will be returned to ATS Platform. In the **Calendar Selection** dropdown, choose which Google Calendar should be used for interview events (e.g., your primary calendar or a dedicated `Interviews` calendar). Events created by ATS Platform will appear in this calendar.
+  </Step>
+  <Step title="Click 'Save'">
+    Click **Save** to complete the connection. ATS Platform will run a quick sync verification and display a green **Connected** badge on the Google Calendar tile. Your interviewers' availability will now appear in the scheduling interface the next time you schedule an interview.
+  </Step>
+</Steps>
+
+<Warning>
+Disconnecting a calendar integration from ATS Platform will **not** cancel or remove existing calendar events that were already created. Those events will remain on the interviewers' and candidates' calendars. You will need to manually cancel any upcoming interview events through your calendar application if they are no longer valid. Before disconnecting, review upcoming scheduled interviews to determine whether any manual cancellations are needed.
+</Warning>
+
+## Connecting Microsoft Outlook
+
+The Microsoft Outlook integration follows the same flow as Google Calendar but uses Microsoft's OAuth 2.0 authorization. Navigate to **Settings → Integrations → Microsoft Outlook**, click **Connect Microsoft Account**, and sign in with your Microsoft 365 credentials. You will be prompted to grant access to your Exchange calendar. The same calendar selection and save steps apply. Your organization's Microsoft 365 administrator may need to pre-approve the ATS Platform app in the Azure AD admin center before individual users can connect.
+
+## Connecting Slack
+
+Navigate to **Settings → Integrations → Slack** and click **Connect to Slack**. You will be redirected to Slack's OAuth flow — sign in to your workspace and select the channel where you want ATS Platform notifications to be delivered. After authorizing, return to ATS Platform and configure which notification events should be posted to Slack (new applications, stage changes, scorecard completions, offer events). Each event type can be routed to a different Slack channel if desired.
+
+## Connecting Zapier
+
+Navigate to **Settings → Integrations → Zapier** and copy your **Zapier API Key** from the integration panel. In your Zapier account, search for **ATS Platform** in the app directory, create a new Zap, and paste your API key when prompted. ATS Platform supports both **triggers** (events that start a Zap, such as "New Candidate Added") and **actions** (things Zapier does in ATS Platform, such as "Create Candidate"). Visit the ATS Platform Zapier app page for a full list of supported triggers and actions.
+
+## Webhook Configuration
+
+Webhooks allow ATS Platform to push real-time event data to any URL you specify — your own server, a serverless function, or a third-party service. Unlike the Zapier integration, webhooks are code-level and give you complete control over how you process and respond to events.
+
+You can configure webhooks to fire on events including:
+- `application.created` — A new application is submitted
+- `candidate.stage_changed` — A candidate moves to a new pipeline stage
+- `interview.scheduled` — An interview is created
+- `offer.signed` — A candidate signs an offer letter
+
+ATS Platform delivers webhook payloads as HTTP `POST` requests with a JSON body and an `X-ATS-Signature` header for payload verification.
+
+For full documentation on configuring webhooks, registering endpoints, verifying signatures, and handling retries, see the [Webhooks API reference](/api/webhooks).

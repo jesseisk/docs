@@ -1,0 +1,305 @@
+---
+title: "Applications API — Track Pipeline Stages & Status"
+sidebarTitle: "Applications API"
+description: "Full reference for the Applications resource: list, create, retrieve, move through pipeline stages, and set terminal hire or reject statuses."
+---
+
+An application is the core object that links a candidate to a specific job and tracks their progress through your hiring pipeline. Each application belongs to exactly one candidate and one job, and it moves through the pipeline stages you've configured for that job. The Applications API lets you create applications, query them with rich filters, advance candidates through stages, and set final outcomes. All applications endpoints require an API key with at least the `applications:read` scope; write operations require `applications:write`.
+
+**Base path:** `/v2/applications`
+
+---
+
+## GET /v2/applications
+
+Retrieve a paginated list of applications. Use the query parameters to narrow results by job, candidate, pipeline stage, or status. This endpoint is the primary way to build dashboards, reporting pipelines, and sync integrations with downstream HRIS tools.
+
+### Query Parameters
+
+<ParamField query="job_id" type="string">
+  Return only applications for the specified job. Example: `job_1a2b3c4d`.
+</ParamField>
+
+<ParamField query="candidate_id" type="string">
+  Return only applications belonging to the specified candidate. Example: `cand_xyz789`.
+</ParamField>
+
+<ParamField query="stage_id" type="string">
+  Filter by the current pipeline stage ID. Example: `stage_003`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by terminal status. Accepted values: `active`, `hired`, `rejected`. Defaults to `active`.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of results to return per page. Maximum is `100`.
+</ParamField>
+
+<ParamField query="offset" type="integer" default="0">
+  Number of results to skip for pagination.
+</ParamField>
+
+### Request
+
+```bash
+curl -G https://api.ats-platform.com/v2/applications \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  --data-urlencode "job_id=job_1a2b3c4d" \
+  --data-urlencode "status=active" \
+  --data-urlencode "limit=20"
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "app_abc123",
+      "candidate_id": "cand_xyz789",
+      "candidate_name": "Jane Smith",
+      "job_id": "job_1a2b3c4d",
+      "job_title": "Senior Software Engineer",
+      "stage_id": "stage_003",
+      "stage": "Technical Interview",
+      "status": "active",
+      "source": "LinkedIn",
+      "applied_at": "2025-06-10T09:00:00Z",
+      "stage_changed_at": "2025-06-20T14:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 47,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+## POST /v2/applications
+
+Create a new application by linking an existing candidate to an existing job. If you do not specify a `stage_id`, the application is automatically placed at the first stage of the job's associated pipeline. Creating an application triggers any configured automation rules attached to the first pipeline stage.
+
+### Body Parameters
+
+<ParamField body="candidate_id" type="string" required>
+  The unique identifier of the candidate to apply. The candidate must already exist — use `POST /v2/candidates` to create them first if needed.
+</ParamField>
+
+<ParamField body="job_id" type="string" required>
+  The unique identifier of the job the candidate is applying for. The job must be in `active` or `draft` status.
+</ParamField>
+
+<ParamField body="stage_id" type="string">
+  The pipeline stage ID at which to place the application. Defaults to the first stage of the job's pipeline if omitted.
+</ParamField>
+
+<ParamField body="source" type="string">
+  The channel through which this application was received. Example: `LinkedIn`, `Referral`, `Indeed`. If omitted, inherits the candidate's `source` field.
+</ParamField>
+
+### Request
+
+```bash
+curl -X POST https://api.ats-platform.com/v2/applications \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "candidate_id": "cand_xyz789",
+    "job_id": "job_1a2b3c4d",
+    "source": "LinkedIn"
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "app_abc123",
+  "candidate_id": "cand_xyz789",
+  "candidate_name": "Jane Smith",
+  "job_id": "job_1a2b3c4d",
+  "job_title": "Senior Software Engineer",
+  "stage_id": "stage_001",
+  "stage": "Application Review",
+  "status": "active",
+  "source": "LinkedIn",
+  "applied_at": "2025-07-15T10:00:00Z",
+  "stage_changed_at": "2025-07-15T10:00:00Z"
+}
+```
+
+---
+
+## GET /v2/applications/{id}
+
+Retrieve the full details of a single application, including its complete stage transition history, any recruiter notes attached to the application, and summary scorecard data from completed interviews.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the application. Example: `app_abc123`.
+</ParamField>
+
+### Request
+
+```bash
+curl https://api.ats-platform.com/v2/applications/app_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+```json
+{
+  "id": "app_abc123",
+  "candidate_id": "cand_xyz789",
+  "candidate_name": "Jane Smith",
+  "job_id": "job_1a2b3c4d",
+  "job_title": "Senior Software Engineer",
+  "stage_id": "stage_003",
+  "stage": "Technical Interview",
+  "status": "active",
+  "source": "LinkedIn",
+  "applied_at": "2025-06-10T09:00:00Z",
+  "stage_changed_at": "2025-06-20T14:00:00Z",
+  "stage_history": [
+    { "stage": "Application Review", "entered_at": "2025-06-10T09:00:00Z", "exited_at": "2025-06-12T11:00:00Z" },
+    { "stage": "Phone Screen", "entered_at": "2025-06-12T11:00:00Z", "exited_at": "2025-06-20T14:00:00Z" },
+    { "stage": "Technical Interview", "entered_at": "2025-06-20T14:00:00Z", "exited_at": null }
+  ],
+  "notes": [
+    { "id": "note_001", "author": "alice@company.com", "body": "Strong communication skills.", "created_at": "2025-06-12T10:00:00Z" }
+  ],
+  "scorecards": [
+    { "interview_id": "int_001", "overall_recommendation": "yes", "submitted_by": "bob@company.com", "submitted_at": "2025-06-19T17:00:00Z" }
+  ]
+}
+```
+
+---
+
+## PATCH /v2/applications/{id}/stage
+
+Move an application to a new pipeline stage. Stage transitions are recorded in the application's `stage_history`, trigger any stage-level automation rules you have configured (such as sending candidate notifications or assigning tasks), and emit an `application.stage_changed` webhook event.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the application to advance.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="stage_id" type="string" required>
+  The ID of the target pipeline stage. Must belong to the same pipeline as the application's job.
+</ParamField>
+
+<ParamField body="note" type="string">
+  An optional recruiter note to attach to the transition, visible in the application timeline.
+</ParamField>
+
+### Request
+
+```bash
+curl -X PATCH https://api.ats-platform.com/v2/applications/app_abc123/stage \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stage_id": "stage_004",
+    "note": "Passed technical interview — moving to offer stage."
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "app_abc123",
+  "candidate_id": "cand_xyz789",
+  "job_id": "job_1a2b3c4d",
+  "stage_id": "stage_004",
+  "stage": "Offer",
+  "status": "active",
+  "stage_changed_at": "2025-07-15T11:00:00Z",
+  "stage_history": [
+    { "stage": "Application Review", "entered_at": "2025-06-10T09:00:00Z", "exited_at": "2025-06-12T11:00:00Z" },
+    { "stage": "Phone Screen", "entered_at": "2025-06-12T11:00:00Z", "exited_at": "2025-06-20T14:00:00Z" },
+    { "stage": "Technical Interview", "entered_at": "2025-06-20T14:00:00Z", "exited_at": "2025-07-15T11:00:00Z" },
+    { "stage": "Offer", "entered_at": "2025-07-15T11:00:00Z", "exited_at": null }
+  ]
+}
+```
+
+---
+
+## PATCH /v2/applications/{id}/status
+
+Set a terminal status on an application. Once an application is marked `hired` or `rejected`, it is removed from the active pipeline and no further stage transitions are permitted. Setting the status to `hired` also triggers the onboarding workflow if one is configured for the job's department.
+
+<Warning>
+  Moving an application to `rejected` status automatically sends the **rejection email template** configured for your organization to the candidate. If you want to set the rejection status programmatically without triggering the email (for example, during a bulk data migration or when you intend to send a custom message manually), pass `"suppress_email": true` in the request body.
+</Warning>
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the application.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="status" type="string" required>
+  The terminal status to set. Accepted values: `hired`, `rejected`.
+</ParamField>
+
+<ParamField body="reason" type="string">
+  An optional internal reason for the decision. Not visible to the candidate. Useful for pipeline analytics and reporting.
+</ParamField>
+
+<ParamField body="suppress_email" type="boolean">
+  Set to `true` to prevent the rejection email from being sent to the candidate. Only applies when `status` is `rejected`. Defaults to `false`.
+</ParamField>
+
+### Request
+
+```bash
+curl -X PATCH https://api.ats-platform.com/v2/applications/app_abc123/status \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "hired",
+    "reason": "Best technical fit for the role."
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "app_abc123",
+  "candidate_id": "cand_xyz789",
+  "job_id": "job_1a2b3c4d",
+  "stage_id": "stage_004",
+  "stage": "Offer",
+  "status": "hired",
+  "hired_at": "2025-07-15T12:00:00Z",
+  "updated_at": "2025-07-15T12:00:00Z"
+}
+```
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Candidates API" icon="user" href="/api/candidates">
+    Create and manage the candidate profiles that applications are linked to.
+  </Card>
+  <Card title="Interviews API" icon="calendar" href="/api/interviews">
+    Schedule interviews and submit scorecards against an application.
+  </Card>
+</CardGroup>

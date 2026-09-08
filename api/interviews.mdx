@@ -1,0 +1,353 @@
+---
+title: "Interviews API — Schedule, Update & Score Interviews"
+sidebarTitle: "Interviews API"
+description: "Full reference for the Interviews resource: schedule interviews, manage attendees, reschedule, cancel, and submit structured scorecards via the API."
+---
+
+The Interviews API lets you orchestrate the full interview lifecycle programmatically — from scheduling a phone screen with a single interviewer to coordinating a multi-panel onsite interview and collecting structured scorecard feedback. Interviews are always linked to an application, which in turn connects them to both a candidate and a job. Calendar invitations and meeting links are generated automatically when you schedule an interview, and any reschedule or cancellation triggers notifications to all participants. Accessing these endpoints requires an API key with at least the `applications:read` scope; scheduling and updating interviews additionally requires `applications:write`.
+
+**Base path:** `/v2/interviews`
+
+---
+
+## GET /v2/interviews
+
+Retrieve a paginated list of interviews. Use the query parameters to filter by application, interviewer, status, or date range to power scheduling dashboards and calendar integrations.
+
+### Query Parameters
+
+<ParamField query="application_id" type="string">
+  Return only interviews linked to the specified application. Example: `app_abc123`.
+</ParamField>
+
+<ParamField query="interviewer_id" type="string">
+  Return only interviews assigned to the specified interviewer (user ID). Example: `user_001`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by interview status. Accepted values: `scheduled`, `completed`, `cancelled`.
+</ParamField>
+
+<ParamField query="from_date" type="string">
+  Return only interviews scheduled on or after this ISO 8601 date. Example: `2025-07-01`.
+</ParamField>
+
+<ParamField query="to_date" type="string">
+  Return only interviews scheduled on or before this ISO 8601 date. Example: `2025-07-31`.
+</ParamField>
+
+### Request
+
+```bash
+curl -G https://api.ats-platform.com/v2/interviews \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  --data-urlencode "application_id=app_abc123" \
+  --data-urlencode "status=scheduled"
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "int_001",
+      "application_id": "app_abc123",
+      "type": "video",
+      "status": "scheduled",
+      "scheduled_at": "2025-07-20T14:00:00Z",
+      "duration_minutes": 60,
+      "meeting_link": "https://meet.ats-platform.com/r/int_001",
+      "interviewers": [
+        { "id": "user_001", "name": "Alice Chen", "email": "alice@company.com" }
+      ],
+      "created_at": "2025-07-15T10:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 3,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+## POST /v2/interviews
+
+Schedule a new interview for an application. When you create an interview, the platform automatically generates a calendar event and sends invitations to the candidate and all specified interviewers. If you supply a `meeting_link`, it is embedded in the invitation; otherwise a platform-hosted meeting room is created automatically for `video` type interviews.
+
+### Body Parameters
+
+<ParamField body="application_id" type="string" required>
+  The ID of the application this interview is associated with. Example: `app_abc123`.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  The interview format. Accepted values: `phone_screen`, `video`, `onsite`.
+</ParamField>
+
+<ParamField body="scheduled_at" type="string" required>
+  The start time of the interview as an ISO 8601 datetime string with timezone offset. Example: `2025-07-20T14:00:00Z`.
+</ParamField>
+
+<ParamField body="interviewer_ids" type="array" required>
+  An array of user IDs for the team members conducting the interview. Each ID must correspond to an active user in your organization. Example: `["user_001", "user_002"]`.
+</ParamField>
+
+<ParamField body="duration_minutes" type="integer" default="60">
+  The length of the interview in minutes. Calendar invitations are created using this duration.
+</ParamField>
+
+<ParamField body="meeting_link" type="string">
+  A custom video conference URL (e.g., a Zoom or Google Meet link). If omitted for `video` type interviews, a platform-hosted room is created automatically.
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Internal notes or instructions for the interviewers. These are included in the interviewer notification email but are not visible to the candidate.
+</ParamField>
+
+### Request
+
+```bash
+curl -X POST https://api.ats-platform.com/v2/interviews \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "application_id": "app_abc123",
+    "type": "video",
+    "scheduled_at": "2025-07-20T14:00:00Z",
+    "interviewer_ids": ["user_001", "user_002"],
+    "duration_minutes": 60,
+    "notes": "Focus on system design and scalability trade-offs."
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "int_001",
+  "application_id": "app_abc123",
+  "type": "video",
+  "status": "scheduled",
+  "scheduled_at": "2025-07-20T14:00:00Z",
+  "duration_minutes": 60,
+  "meeting_link": "https://meet.ats-platform.com/r/int_001",
+  "calendar_event_id": "cal_evt_88xyz",
+  "interviewers": [
+    { "id": "user_001", "name": "Alice Chen", "email": "alice@company.com" },
+    { "id": "user_002", "name": "Bob Nguyen", "email": "bob@company.com" }
+  ],
+  "notes": "Focus on system design and scalability trade-offs.",
+  "created_at": "2025-07-15T10:00:00Z",
+  "updated_at": "2025-07-15T10:00:00Z"
+}
+```
+
+---
+
+## GET /v2/interviews/{id}
+
+Retrieve the full details for a single interview by ID. The response includes all scheduled details, the list of interviewers, and any scorecards that have been submitted for the interview (visible only after the interview status transitions to `completed`).
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the interview. Example: `int_001`.
+</ParamField>
+
+### Request
+
+```bash
+curl https://api.ats-platform.com/v2/interviews/int_001 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+```json
+{
+  "id": "int_001",
+  "application_id": "app_abc123",
+  "type": "video",
+  "status": "completed",
+  "scheduled_at": "2025-07-20T14:00:00Z",
+  "duration_minutes": 60,
+  "meeting_link": "https://meet.ats-platform.com/r/int_001",
+  "calendar_event_id": "cal_evt_88xyz",
+  "interviewers": [
+    { "id": "user_001", "name": "Alice Chen", "email": "alice@company.com" }
+  ],
+  "scorecards": [
+    {
+      "id": "sc_001",
+      "submitted_by": { "id": "user_001", "name": "Alice Chen" },
+      "overall_recommendation": "yes",
+      "submitted_at": "2025-07-20T15:10:00Z"
+    }
+  ],
+  "created_at": "2025-07-15T10:00:00Z",
+  "updated_at": "2025-07-20T15:10:00Z"
+}
+```
+
+---
+
+## PUT /v2/interviews/{id}
+
+Update an existing interview — typically used to reschedule to a new time or update the interviewer list. Any change to `scheduled_at`, `duration_minutes`, or `meeting_link` triggers re-notification emails to the candidate and all interviewers, and updates the associated calendar event automatically.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the interview to update.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="scheduled_at" type="string">
+  New ISO 8601 start datetime for the rescheduled interview.
+</ParamField>
+
+<ParamField body="duration_minutes" type="integer">
+  Updated interview duration in minutes.
+</ParamField>
+
+<ParamField body="interviewer_ids" type="array">
+  Updated list of interviewer user IDs. This fully replaces the existing list — include all interviewers you want on the updated event.
+</ParamField>
+
+<ParamField body="meeting_link" type="string">
+  Updated meeting URL.
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Updated internal notes for interviewers.
+</ParamField>
+
+### Request
+
+```bash
+curl -X PUT https://api.ats-platform.com/v2/interviews/int_001 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "scheduled_at": "2025-07-22T15:00:00Z",
+    "duration_minutes": 90
+  }'
+```
+
+---
+
+## DELETE /v2/interviews/{id}
+
+Cancel an interview. Cancelling sends a cancellation email to the candidate and all interviewers, and removes the calendar event. The interview record is retained with `status: cancelled` for audit purposes.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the interview to cancel.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="reason" type="string">
+  An optional cancellation reason. Included in the cancellation email sent to the candidate and interviewers.
+</ParamField>
+
+### Request
+
+```bash
+curl -X DELETE https://api.ats-platform.com/v2/interviews/int_001 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"reason": "Candidate withdrew their application."}'
+```
+
+### Response
+
+A successful cancellation returns `204 No Content`.
+
+---
+
+## POST /v2/interviews/{id}/scorecard
+
+Submit a structured scorecard for a completed interview. Each scorecard contains per-criterion ratings on a 1–5 scale, an overall recommendation, and free-text notes. You can submit one scorecard per interviewer per interview; submitting a second scorecard for the same interviewer overwrites the previous submission.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the interview to score.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="ratings" type="object" required>
+  A key-value object mapping criterion names to integer scores from 1 (poor) to 5 (exceptional). The available criteria are defined by the scorecard template attached to the job's pipeline stage. Example: `{"Problem Solving": 4, "Communication": 5, "System Design": 4}`.
+</ParamField>
+
+<ParamField body="overall_recommendation" type="string" required>
+  The interviewer's hiring recommendation. Accepted values: `strong_yes`, `yes`, `no`, `strong_no`.
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Free-text qualitative feedback to accompany the ratings. Visible to other interviewers and recruiters in the scorecard summary.
+</ParamField>
+
+### Request
+
+```bash
+curl -X POST https://api.ats-platform.com/v2/interviews/int_001/scorecard \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ratings": {
+      "Problem Solving": 5,
+      "Communication": 4,
+      "System Design": 5,
+      "Cultural Fit": 4
+    },
+    "overall_recommendation": "strong_yes",
+    "notes": "Jane demonstrated exceptional depth in distributed systems design. She walked through multiple trade-offs clearly and asked clarifying questions proactively. Strongly recommend moving forward to the offer stage."
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "sc_001",
+  "interview_id": "int_001",
+  "application_id": "app_abc123",
+  "submitted_by": {
+    "id": "user_001",
+    "name": "Alice Chen",
+    "email": "alice@company.com"
+  },
+  "ratings": {
+    "Problem Solving": 5,
+    "Communication": 4,
+    "System Design": 5,
+    "Cultural Fit": 4
+  },
+  "average_rating": 4.5,
+  "overall_recommendation": "strong_yes",
+  "notes": "Jane demonstrated exceptional depth in distributed systems design. She walked through multiple trade-offs clearly and asked clarifying questions proactively. Strongly recommend moving forward to the offer stage.",
+  "submitted_at": "2025-07-20T15:10:00Z"
+}
+```
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Interview Scheduling" icon="calendar" href="/manual/interview-scheduling">
+    Learn how to use the interview scheduling tools in the ATS Platform dashboard.
+  </Card>
+  <Card title="Pipeline Stages" icon="list-check" href="/configuration/pipeline-stages">
+    Configure scorecard templates for each stage in your hiring pipeline.
+  </Card>
+</CardGroup>

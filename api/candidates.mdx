@@ -1,0 +1,341 @@
+---
+title: "Candidates API — Manage Candidate Profiles"
+sidebarTitle: "Candidates API"
+description: "Full CRUD reference for the Candidates resource: list, create, retrieve, and update candidate profiles and fetch their application history."
+---
+
+The Candidates API gives you full control over candidate profiles in your talent database. You can create candidates from any source — a job board integration, a referral form, or your own careers page — and attach metadata like resume URLs, LinkedIn profiles, and source attribution. Every candidate can be linked to multiple job applications, and you can query their full application history from a single endpoint. All candidates endpoints require an API key with at least the `candidates:read` scope; write operations require `candidates:write`.
+
+**Base path:** `/v2/candidates`
+
+---
+
+## GET /v2/candidates
+
+Retrieve a paginated list of candidates. Filter by the job they applied to, the pipeline stage they currently occupy, or the source channel they came from.
+
+### Query Parameters
+
+<ParamField query="job_id" type="string">
+  Return only candidates who have an application linked to this job ID. Example: `job_1a2b3c4d`.
+</ParamField>
+
+<ParamField query="stage" type="string">
+  Filter by the name of the current pipeline stage across all of a candidate's active applications. Example: `Technical Interview`.
+</ParamField>
+
+<ParamField query="source" type="string">
+  Filter by the candidate's source channel. Example: `LinkedIn`, `Referral`, `Indeed`, `Direct`.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of results to return per page. Maximum value is `100`.
+</ParamField>
+
+<ParamField query="offset" type="integer" default="0">
+  Number of results to skip. Use with `limit` to paginate through the full result set.
+</ParamField>
+
+### Request
+
+```bash
+curl -G https://api.ats-platform.com/v2/candidates \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  --data-urlencode "job_id=job_1a2b3c4d" \
+  --data-urlencode "source=LinkedIn" \
+  --data-urlencode "limit=20" \
+  --data-urlencode "offset=0"
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "cand_xyz789",
+      "full_name": "Jane Smith",
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "email": "jane.smith@example.com",
+      "phone": "+1-555-0182",
+      "source": "LinkedIn",
+      "resume_url": "https://storage.ats-platform.com/resumes/cand_xyz789.pdf",
+      "linkedin_url": "https://linkedin.com/in/janesmith",
+      "application_count": 2,
+      "created_at": "2025-06-10T08:45:00Z",
+      "updated_at": "2025-07-01T16:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 134,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+## POST /v2/candidates
+
+Create a new candidate profile. At minimum, you must supply the candidate's name and email address. Additional fields such as phone number, resume URL, and source attribution are optional but strongly recommended to ensure candidates are routable and trackable.
+
+<Tip>
+  Use the `source` field consistently across all candidate creation calls to enable accurate source-of-hire reporting. Standardized source values such as `LinkedIn`, `Referral`, `Indeed`, `Company Website`, and `Direct` can be filtered on the `GET /v2/candidates` endpoint and surfaced in your recruitment analytics dashboard.
+</Tip>
+
+### Body Parameters
+
+<ParamField body="first_name" type="string" required>
+  The candidate's first name.
+</ParamField>
+
+<ParamField body="last_name" type="string" required>
+  The candidate's last name.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  The candidate's email address. Must be a valid email format. Used as the unique identifier for deduplication — if a candidate with this email already exists, the API returns a `409 Conflict` with the existing candidate's ID.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  The candidate's phone number in any standard format. Example: `+1-555-0182`.
+</ParamField>
+
+<ParamField body="source" type="string">
+  The channel through which the candidate was sourced. Recommended values: `LinkedIn`, `Referral`, `Indeed`, `Company Website`, `Direct`, `Agency`. Custom values are accepted.
+</ParamField>
+
+<ParamField body="resume_url" type="string">
+  A publicly accessible URL to the candidate's resume PDF or document. You can upload resumes to ATS Platform storage and receive a URL before creating the candidate record.
+</ParamField>
+
+<ParamField body="linkedin_url" type="string">
+  The full URL to the candidate's LinkedIn profile. Example: `https://linkedin.com/in/janesmith`.
+</ParamField>
+
+### Request
+
+```bash
+curl -X POST https://api.ats-platform.com/v2/candidates \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "email": "jane.smith@example.com",
+    "phone": "+1-555-0182",
+    "source": "LinkedIn",
+    "resume_url": "https://storage.ats-platform.com/resumes/cand_xyz789.pdf",
+    "linkedin_url": "https://linkedin.com/in/janesmith"
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "cand_xyz789",
+  "full_name": "Jane Smith",
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "email": "jane.smith@example.com",
+  "phone": "+1-555-0182",
+  "source": "LinkedIn",
+  "resume_url": "https://storage.ats-platform.com/resumes/cand_xyz789.pdf",
+  "linkedin_url": "https://linkedin.com/in/janesmith",
+  "application_count": 0,
+  "created_at": "2025-07-15T10:00:00Z",
+  "updated_at": "2025-07-15T10:00:00Z"
+}
+```
+
+---
+
+## GET /v2/candidates/{id}
+
+Retrieve the complete profile for a single candidate by ID. The response includes the base profile fields, an array of all linked applications (with their current stages), and an array of attached documents such as resumes and cover letters.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the candidate. Example: `cand_xyz789`.
+</ParamField>
+
+### Request
+
+```bash
+curl https://api.ats-platform.com/v2/candidates/cand_xyz789 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+```json
+{
+  "id": "cand_xyz789",
+  "full_name": "Jane Smith",
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "email": "jane.smith@example.com",
+  "phone": "+1-555-0182",
+  "source": "LinkedIn",
+  "resume_url": "https://storage.ats-platform.com/resumes/cand_xyz789.pdf",
+  "linkedin_url": "https://linkedin.com/in/janesmith",
+  "profile": {
+    "tags": ["senior", "backend", "python"],
+    "recruiter_notes": "Strong systems design background. Fast follow-up.",
+    "gdpr_consent": true,
+    "gdpr_consent_at": "2025-06-10T08:45:00Z"
+  },
+  "applications": [
+    {
+      "id": "app_abc123",
+      "job_id": "job_1a2b3c4d",
+      "job_title": "Senior Software Engineer",
+      "stage": "Technical Interview",
+      "status": "active",
+      "applied_at": "2025-06-10T09:00:00Z"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc_001",
+      "type": "resume",
+      "filename": "jane_smith_resume.pdf",
+      "url": "https://storage.ats-platform.com/resumes/cand_xyz789.pdf",
+      "uploaded_at": "2025-06-10T08:45:00Z"
+    }
+  ],
+  "application_count": 1,
+  "created_at": "2025-06-10T08:45:00Z",
+  "updated_at": "2025-07-01T16:00:00Z"
+}
+```
+
+---
+
+## PUT /v2/candidates/{id}
+
+Update any fields on an existing candidate profile. All body fields are optional — include only the fields you want to change. This endpoint is commonly used to enrich a candidate record after initial creation, for example to attach a resume URL after upload or update contact details.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the candidate to update.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="first_name" type="string">
+  Updated first name.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  Updated last name.
+</ParamField>
+
+<ParamField body="email" type="string">
+  Updated email address. Must be unique across all candidates in the organization.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  Updated phone number.
+</ParamField>
+
+<ParamField body="source" type="string">
+  Updated source attribution.
+</ParamField>
+
+<ParamField body="resume_url" type="string">
+  Updated URL to the candidate's resume.
+</ParamField>
+
+<ParamField body="linkedin_url" type="string">
+  Updated LinkedIn profile URL.
+</ParamField>
+
+### Request
+
+```bash
+curl -X PUT https://api.ats-platform.com/v2/candidates/cand_xyz789 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "+1-555-0199",
+    "linkedin_url": "https://linkedin.com/in/jane-smith-dev"
+  }'
+```
+
+### Response
+
+The response returns the full updated candidate object in the same shape as `GET /v2/candidates/{id}`.
+
+---
+
+## GET /v2/candidates/{id}/applications
+
+List all job applications associated with a specific candidate. This endpoint returns a paginated list of application summaries, ordered by `applied_at` descending (most recent first). Use this to build a candidate's complete history across all roles they have applied to at your organization.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the candidate.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="limit" type="integer" default="20">
+  Number of applications to return per page.
+</ParamField>
+
+<ParamField query="offset" type="integer" default="0">
+  Number of applications to skip for pagination.
+</ParamField>
+
+### Request
+
+```bash
+curl https://api.ats-platform.com/v2/candidates/cand_xyz789/applications \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "app_abc123",
+      "job_id": "job_1a2b3c4d",
+      "job_title": "Senior Software Engineer",
+      "department": "Engineering",
+      "stage": "Technical Interview",
+      "stage_id": "stage_003",
+      "status": "active",
+      "source": "LinkedIn",
+      "applied_at": "2025-06-10T09:00:00Z",
+      "stage_changed_at": "2025-06-20T14:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Applications API" icon="file-lines" href="/api/applications">
+    Link candidates to jobs and manage their pipeline progression.
+  </Card>
+  <Card title="Candidate Management" icon="users" href="/manual/candidate-management">
+    Learn how to manage candidates from the ATS Platform dashboard.
+  </Card>
+</CardGroup>

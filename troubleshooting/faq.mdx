@@ -1,0 +1,147 @@
+---
+title: "Frequently Asked Questions for ATS Platform Users"
+sidebarTitle: "FAQ"
+description: "Find answers to common questions about account access, jobs, candidates, interview scheduling, offer letters, API keys, and third-party integrations."
+---
+
+This FAQ page collects answers to the questions our users ask most often. Questions are grouped by topic so you can quickly find what you're looking for. If your question isn't covered here, check the [Common Issues](/troubleshooting/common-issues) page for specific error scenarios, or reach out to our support team via the in-app chat.
+
+## Account & Access
+
+<AccordionGroup>
+  <Accordion title="How do I reset my password?">
+    If you are logged out, click **Forgot Password** on the ATS Platform login page and enter the email address associated with your account. You will receive a password reset email within a few minutes. Click the link in the email — it is valid for **1 hour**. Follow the prompts to create a new password that meets the minimum security requirements (at least 12 characters, including one uppercase letter, one number, and one special character).
+
+    If you are already logged in and want to change your password proactively, navigate to your **Profile** (click your avatar in the top-right corner) → **Security** → **Change Password**. You will need to enter your current password before setting a new one.
+
+    If you are an Admin and need to reset a team member's password, navigate to **Settings → Team Members**, find the user, and click **Reset Password**. This sends them a password reset email immediately.
+  </Accordion>
+
+  <Accordion title="How do I change my email address?">
+    To change the email address on your ATS Platform account, navigate to your **Profile → Account Settings → Email Address**. Enter your new email address and click **Send Verification**. A confirmation email will be sent to the **new** address — you must click the link in that email to verify the change. Until verified, your login email remains unchanged.
+
+    Note that if your organization uses SAML 2.0 SSO, your email address is controlled by your identity provider (Okta, Azure AD, etc.) and cannot be changed from within ATS Platform. Contact your IT administrator to update your email at the identity provider level.
+  </Accordion>
+
+  <Accordion title="Why can't I see a job that my colleague created?">
+    Job visibility in ATS Platform is governed by your user role and the job's access settings:
+
+    - **Interviewers** only see jobs they have been explicitly assigned to as an interviewer on a scheduled interview. They do not have general access to the Jobs list.
+    - **Hiring Managers** see only the jobs they have been assigned to as the hiring manager.
+    - **Recruiters** and **Admins** see all jobs by default.
+
+    If you believe you should have access to a specific job, ask the job's owner (the recruiter or admin who created it) to add you as an assigned team member on that job. They can do this from **Jobs → [Job Name] → Settings → Hiring Team**.
+  </Accordion>
+
+  <Accordion title="How do I deactivate a team member's account?">
+    Only users with the **Admin** role can deactivate accounts. Navigate to **Settings → Team Members**, find the team member in the Active Members list, and click their name to open their profile. Click the **Deactivate Account** button at the bottom of the panel, then confirm the action in the dialog.
+
+    Deactivating an account immediately revokes that user's ability to log in and removes them from all active hiring team assignments. However, all of their historical activity — scorecards, interview notes, emails sent, and audit log entries — is preserved and remains visible to your team. If the user is assigned as the recruiter or hiring manager on open jobs, you will be prompted to reassign those jobs to another team member before the deactivation completes.
+  </Accordion>
+</AccordionGroup>
+
+## Jobs & Candidates
+
+<AccordionGroup>
+  <Accordion title="How do I re-open a closed job?">
+    To re-open a job that was previously closed or filled, navigate to **Jobs** and use the **Status** filter dropdown to show **Closed** jobs. Click on the job you want to re-open, then navigate to the job's **Settings** tab. Click **Change Status → Active** and confirm. The job will immediately become active and visible to candidates on your careers page (assuming it was publicly listed before closing).
+
+    Note that re-opening a job does not restore any candidates who were rejected or archived as part of the closing process. Those candidate records remain in your database and can be manually moved back into the pipeline if needed.
+  </Accordion>
+
+  <Accordion title="Can I duplicate an existing job posting?">
+    Yes. From the **Jobs** list, hover over the job you want to duplicate and click the **⋯ More Actions** menu, then select **Duplicate Job**. ATS Platform will create an exact copy of the job posting — including the title, description, requirements, pipeline assignment, and hiring team — with a status of **Draft** so it is not immediately published. You can then edit any fields before publishing.
+
+    This is especially useful when hiring for multiple similar roles (e.g., multiple regional Sales Account Executive positions) or when you want to create a refreshed version of a previously closed job.
+  </Accordion>
+
+  <Accordion title="How do I bulk import candidates via CSV?">
+    To import multiple candidate records at once, navigate to **Candidates → Import** and click **Download CSV Template** to get the correctly formatted template. Fill in the required columns — `first_name`, `last_name`, `email`, and `job_id` — along with any optional fields such as `phone`, `source`, and `resume_url`.
+
+    Once your CSV is ready, return to **Candidates → Import**, upload your file, and click **Preview Import**. ATS Platform will validate each row and flag any errors (duplicate emails, missing required fields, invalid job IDs) before importing. You can correct errors inline or fix them in your CSV and re-upload. Click **Confirm Import** to complete the process. Imports are limited to **500 rows per file**.
+
+    For programmatic candidate creation at higher volumes, consider using the [Candidates API](/api/candidates).
+  </Accordion>
+
+  <Accordion title="Why is a candidate's email bouncing?">
+    Email bounces typically fall into two categories:
+
+    - **Hard bounce** — The email address does not exist or the domain is invalid. You will see this flagged on the candidate's profile with a **Bounce** badge next to their email address. Contact the candidate through another channel (phone or LinkedIn) to obtain a valid email address, then update their record under **Candidate Profile → Contact Information**.
+    - **Soft bounce** — A temporary delivery issue such as the recipient's mailbox being full or their mail server being temporarily unavailable. ATS Platform automatically retries soft-bounced emails up to 3 times over 24 hours.
+
+    If you are seeing widespread bounce issues across many candidates from the same company domain, there may be a spam filter or firewall issue on the recipient's side. Ensure your organization's sending domain is properly configured with SPF, DKIM, and DMARC records — your ATS Platform account manager can provide the required DNS values.
+  </Accordion>
+
+  <Accordion title="Can a candidate apply to multiple jobs at once?">
+    Yes. A single candidate can have active applications to multiple open jobs simultaneously. Each application is tracked independently within its job's pipeline — a candidate can be at the Offer stage for one role and in initial Screening for another at the same time.
+
+    From the candidate's profile, you can see all of their active and historical applications listed under the **Applications** tab. ATS Platform will warn you if you attempt to send conflicting communications (for example, a rejection notice for one role while another is active), so you can review and adjust before sending.
+  </Accordion>
+</AccordionGroup>
+
+## Interviews & Offers
+
+<AccordionGroup>
+  <Accordion title="How do I reschedule a confirmed interview?">
+    To reschedule an interview that has already been confirmed and added to participants' calendars, open the candidate's profile and navigate to the **Interviews** tab. Find the interview you want to reschedule and click **Reschedule**. 
+
+    Select a new date and time — if you have a calendar integration connected, available slots for interviewers are shown in green. Click **Confirm Reschedule**. ATS Platform will automatically:
+    - Send an updated calendar invite to the candidate and all interviewers
+    - Cancel the original calendar event (if a calendar integration is active)
+    - Log the reschedule in the candidate's activity timeline with a timestamp
+
+    Both the candidate and the interviewer(s) will receive email notifications with the updated time details.
+  </Accordion>
+
+  <Accordion title="What happens if an interviewer doesn't submit their scorecard?">
+    If an interviewer has not submitted their scorecard within 24 hours of a completed interview, ATS Platform automatically sends them a reminder notification (email and, if connected, Slack). A second reminder is sent at 48 hours.
+
+    The assigned recruiter can see scorecard submission status for every interview from the **Interviews** tab on the candidate's profile. Pending scorecards are flagged with a yellow **Awaiting Scorecard** badge.
+
+    If the interviewer is unresponsive, a Recruiter or Admin can either: (a) manually mark the scorecard as waived by clicking **Waive Scorecard** on the interview record, which allows the candidate to proceed without that input; or (b) reassign the scorecard to a different team member using the **Reassign** option. Waived scorecards are noted in the audit trail.
+  </Accordion>
+
+  <Accordion title="Can I send an offer letter without using a template?">
+    Yes. When creating an offer from a candidate's profile, you can choose between **Use Template** and **Custom Offer**. Selecting **Custom Offer** opens a blank rich-text editor where you can write the offer letter from scratch for that specific candidate.
+
+    However, we strongly recommend using templates for consistency, legal compliance, and efficiency — especially if your legal or HR team has reviewed and approved specific offer language. You can create and manage offer letter templates under **Settings → Email Templates**. Custom offers cannot be saved as templates after the fact, so if you write a one-off offer that you want to reuse, copy it into a new template manually.
+  </Accordion>
+
+  <Accordion title="What happens after a candidate signs the offer letter?">
+    When a candidate clicks the signing link and completes their e-signature on the offer letter, the following events happen automatically:
+
+    1. The candidate's pipeline stage advances to **Hired**
+    2. The recruiter and hiring manager receive an email and (if configured) Slack notification confirming the signature
+    3. The signed offer document is saved as a PDF to the candidate's profile under **Documents**
+    4. If you have a Zapier integration or webhook configured for the `offer.signed` event, those automations fire immediately — useful for triggering onboarding workflows in your HRIS or sending a welcome email
+
+    The candidate also receives a confirmation email with a copy of their signed offer attached as a PDF.
+  </Accordion>
+</AccordionGroup>
+
+## API & Integrations
+
+<AccordionGroup>
+  <Accordion title="Where do I find my API key?">
+    Your ATS Platform API key is located in **Settings → Integrations → REST API**. If you have not yet generated a key, click **Generate API Key**. The key is displayed once — copy it immediately and store it securely in a secrets manager or environment variable. ATS Platform does not display the full key again after you navigate away.
+
+    You can generate multiple API keys (for example, one per service or environment) and assign each a label to help you identify its purpose. To revoke a key, click the **Revoke** button next to it. Revocation is immediate and permanent. See [API Authentication](/api/authentication) for instructions on how to include your key in API requests.
+  </Accordion>
+
+  <Accordion title="How do I test my webhook endpoint?">
+    To send a test event to your webhook endpoint, navigate to **Settings → Integrations → Webhooks**, select the webhook you want to test, and click **Send Test Event**. You can choose the event type to simulate from the dropdown (e.g., `application.created`, `offer.signed`). ATS Platform will POST a sample payload to your endpoint URL and display the HTTP response code and body in the test results panel.
+
+    If your endpoint returns a non-2xx response, review the error message and check that your server is publicly reachable and correctly parsing the JSON payload. For full details on payload structure, signature verification, and retry behavior, see the [Webhooks API reference](/api/webhooks).
+  </Accordion>
+
+  <Accordion title="Why is my calendar sync not showing interviewer availability?">
+    If interviewer availability is not appearing in the scheduling interface, work through this checklist:
+
+    1. **Confirm the integration is connected** — Navigate to **Settings → Integrations** and verify that the Google Calendar or Microsoft Outlook tile shows a green **Connected** badge. If it shows **Disconnected** or **Error**, reconnect the integration.
+    2. **Check individual interviewer connections** — Calendar sync is per-user. Each interviewer must connect their own calendar under their **Profile → Integrations**. A team-level integration connection does not automatically sync all interviewers' calendars.
+    3. **Verify calendar permissions** — The interviewer's calendar must be shared with the connected account at the "See free/busy" level or higher. Ask the interviewer to check their Google Calendar or Outlook sharing settings.
+    4. **Check the calendar selected** — During setup, each user selects which calendar to sync. If the interviewer has multiple calendars (e.g., personal and work), confirm they selected the correct one. They can update this in their **Profile → Integrations → Calendar Settings**.
+
+    If the issue persists after checking all of the above, contact support with the affected interviewer's email address and we will investigate the sync logs.
+  </Accordion>
+</AccordionGroup>

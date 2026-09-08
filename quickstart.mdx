@@ -1,47 +1,82 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "ATS Platform Quickstart: Up and Running Fast"
+sidebarTitle: "Quick Start"
+description: "Follow this step-by-step guide to create your account, configure your organization, build your pipeline, and publish your first job posting."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This quickstart guide walks you through everything you need to go from a brand-new account to actively receiving applications in the ATS Platform. You'll configure your organization, define the hiring stages that reflect your real-world process, and post your first role — all in under thirty minutes. If you're a developer looking to integrate with the REST API, the prerequisites section below covers what you'll need before making your first API call.
 
 ## Prerequisites
 
-Before you begin, you must have:
+Before you begin, make sure you have the following ready:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- **A modern web browser** — the ATS Platform runs fully in the browser and is tested on the latest versions of Chrome, Firefox, Edge, and Safari. No software installation is required.
+- **An email address for your admin account** — this becomes the owner account for your organization. You can invite additional team members after setup.
+- **Your organization details** — company name, primary timezone, and the names of any recruiters or hiring managers you want to add during onboarding.
+- **An API key** *(developers only)* — once your account is active, navigate to **Settings → API Keys** to generate your first key. You'll need this to authenticate requests against the REST API v2. See the [API Authentication guide](/api/authentication) for details.
 
-## Get started
+## Setup Steps
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Create your account and verify your email">
+    Go to [app.atsplatform.io/signup](https://app.atsplatform.io/signup) and fill in your name, work email address, and a strong password. After submitting the form, the ATS Platform sends a verification email to the address you provided.
 
-    ```bash
-    npm install your-package
-    ```
+    Open that email and click **Verify my email** within 24 hours. Once verified, you are taken directly to the onboarding wizard. If the email doesn't arrive within a few minutes, check your spam folder or click **Resend verification** on the login screen.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Configure your organization settings">
+    The onboarding wizard's first screen asks for your organization's display name, primary timezone, date format, and default language. These settings affect how timestamps appear throughout the platform and in all outbound candidate communications, so it's worth taking a moment to confirm them before moving on.
+
+    After saving your organization profile, navigate to **Settings → Team Members** to review your initial user seat. You don't need to invite everyone right now — you can do this at any time — but having at least one other recruiter or hiring manager present will make the pipeline configuration step easier since you'll be able to assign roles immediately.
+
+    <Tip>
+      Invite your teammates before you publish your first job posting. Doing so ensures that incoming applications can be assigned, reviewed, and moved through the pipeline right away rather than sitting in an unreviewed queue while you wait for colleagues to accept their invitations.
+    </Tip>
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
-    ```
+  <Step title="Set up your hiring pipeline stages">
+    Navigate to **Settings → Pipeline Stages** (or go directly to [/configuration/pipeline-stages](/configuration/pipeline-stages)). The ATS Platform starts you off with a sensible default pipeline — *Applied*, *Phone Screen*, *Interview*, *Offer*, *Hired* — but most teams customize this to match how they actually work.
+
+    Click **Add Stage** to insert a new stage, drag stages into the order that reflects your process, and click the pencil icon on any stage to rename it or assign a color label. You can also mark stages as *disqualification* stages (for example, *Rejected* or *Withdrawn*) so that candidates who exit the pipeline are cleanly separated from active prospects.
+
+    Changes to pipeline stages apply to all new jobs you create going forward. Existing jobs retain their stage configuration until you explicitly update them from the job settings panel.
+  </Step>
+
+  <Step title="Create and publish your first job posting">
+    From the main navigation, click **Jobs → New Job**. Fill in the job title, department, employment type (full-time, part-time, contract), location or remote status, and the job description. The description editor supports rich text formatting — you can use headings, bullet lists, and bold text to structure the role clearly for candidates.
+
+    Once the details look right, click **Next** to configure the posting options:
+
+    - **Application form** — choose which fields to require from applicants (résumé, cover letter, portfolio link, custom questions).
+    - **Visibility** — set the posting to *Public* to list it on your careers page, *Unlisted* for private referral links, or *Internal* for internal transfers only.
+    - **Pipeline assignment** — confirm which pipeline this role will use (the one you configured in step 3).
+
+    When you're satisfied with the setup, click **Publish Job**. The posting goes live immediately and a shareable careers-page URL is generated. You can copy this link and share it across job boards, LinkedIn, or your company website.
+  </Step>
+
+  <Step title="Review your first application">
+    As soon as applications start arriving, you'll see them appear under **Jobs → [Your Job Title] → Applications** with a status of *Applied*. Click any applicant's name to open their candidate profile.
+
+    The candidate profile surfaces the applicant's résumé, their answers to any application form questions, their source (how they found the listing), and a full activity timeline showing every interaction the platform has recorded. From here you can:
+
+    - **Move the candidate** to the next pipeline stage using the stage dropdown at the top of the profile.
+    - **Leave a note** visible to your team in the Notes tab.
+    - **Send an email** directly to the candidate using one of your configured email templates.
+    - **Schedule an interview** by clicking **Schedule Interview** and selecting available time slots.
+
+    Work through the first application to get a feel for the profile view, then head to the [Candidate Management manual](/manual/candidate-management) for a deeper look at bulk actions, tagging, and advanced filtering.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## What's Next?
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+With your account configured and your first job live, explore these areas to get the most out of the ATS Platform:
+
+<CardGroup cols={2}>
+  <Card title="Job Management Manual" icon="briefcase" href="/manual/job-management">
+    Learn how to manage multiple open roles, clone job templates, archive closed postings, and track job-level performance metrics.
+  </Card>
+  <Card title="API Overview" icon="code" href="/api/overview">
+    Connect the ATS Platform to your existing tools. The REST API v2 covers jobs, candidates, applications, interviews, and webhooks with full OpenAPI documentation.
+  </Card>
+</CardGroup>

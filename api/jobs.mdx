@@ -1,0 +1,314 @@
+---
+title: "Jobs API — Create, Read, Update & Archive Jobs"
+sidebarTitle: "Jobs API"
+description: "Full CRUD reference for the Jobs resource: list, create, retrieve, update, and archive job listings via the ATS Platform REST API."
+---
+
+The Jobs API lets you manage every aspect of your job listings programmatically. You can create draft jobs and publish them when ready, update details such as salary ranges and descriptions, query your entire job board with filters, and archive positions that are no longer accepting applications. All jobs endpoints require an API key with at least the `jobs:read` scope; write operations require `jobs:write`.
+
+**Base path:** `/v2/jobs`
+
+---
+
+## GET /v2/jobs
+
+Retrieve a paginated list of jobs across your organization. Use the query parameters to filter results by status or department, and control page size with `limit` and `offset`.
+
+### Query Parameters
+
+<ParamField query="status" type="string">
+  Filter by job status. Accepted values: `draft`, `active`, `closed`, `on_hold`, `archived`. Omit to return all non-archived jobs.
+</ParamField>
+
+<ParamField query="department" type="string">
+  Filter by department name (case-insensitive, exact match). Example: `Engineering`.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of results to return per page. Maximum value is `100`.
+</ParamField>
+
+<ParamField query="offset" type="integer" default="0">
+  Number of results to skip before returning the page. Use in combination with `limit` to paginate through results.
+</ParamField>
+
+### Request
+
+```bash
+curl -G https://api.ats-platform.com/v2/jobs \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  --data-urlencode "status=active" \
+  --data-urlencode "department=Engineering" \
+  --data-urlencode "limit=20" \
+  --data-urlencode "offset=0"
+```
+
+### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "job_1a2b3c4d",
+      "title": "Senior Software Engineer",
+      "department": "Engineering",
+      "location": "Remote",
+      "employment_type": "full-time",
+      "status": "active",
+      "salary_min": 120000,
+      "salary_max": 160000,
+      "application_count": 47,
+      "created_at": "2025-06-01T09:00:00Z",
+      "updated_at": "2025-06-15T14:22:00Z"
+    }
+  ],
+  "meta": {
+    "total": 12,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+## POST /v2/jobs
+
+Create a new job listing. Newly created jobs are placed in `draft` status by default and are not visible on your public job board until you explicitly transition them to `active`.
+
+### Body Parameters
+
+<ParamField body="title" type="string" required>
+  The job title as it will appear on the listing. Example: `"Product Manager"`.
+</ParamField>
+
+<ParamField body="department" type="string" required>
+  The department this role belongs to. Example: `"Product"`.
+</ParamField>
+
+<ParamField body="location" type="string" required>
+  The location of the role. Use `"Remote"` for fully remote positions.
+</ParamField>
+
+<ParamField body="employment_type" type="string" required>
+  The employment classification. Accepted values: `full-time`, `part-time`, `contract`.
+</ParamField>
+
+<ParamField body="description" type="string">
+  The full job description in plain text or Markdown. Displayed to candidates on the job listing page.
+</ParamField>
+
+<ParamField body="salary_min" type="number">
+  Minimum annual salary in your organization's base currency. Used for internal tracking and optional candidate-facing display.
+</ParamField>
+
+<ParamField body="salary_max" type="number">
+  Maximum annual salary in your organization's base currency.
+</ParamField>
+
+<ParamField body="pipeline_id" type="string">
+  The ID of the hiring pipeline to associate with this job. Defaults to your organization's default pipeline if omitted.
+</ParamField>
+
+### Request
+
+```bash
+curl -X POST https://api.ats-platform.com/v2/jobs \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Senior Software Engineer",
+    "department": "Engineering",
+    "location": "Remote",
+    "employment_type": "full-time",
+    "description": "We are looking for a Senior Software Engineer to join our platform team...",
+    "salary_min": 120000,
+    "salary_max": 160000,
+    "pipeline_id": "pipe_eng_standard"
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "job_1a2b3c4d",
+  "title": "Senior Software Engineer",
+  "department": "Engineering",
+  "location": "Remote",
+  "employment_type": "full-time",
+  "status": "draft",
+  "description": "We are looking for a Senior Software Engineer to join our platform team...",
+  "salary_min": 120000,
+  "salary_max": 160000,
+  "pipeline_id": "pipe_eng_standard",
+  "application_count": 0,
+  "created_at": "2025-07-15T10:00:00Z",
+  "updated_at": "2025-07-15T10:00:00Z"
+}
+```
+
+---
+
+## GET /v2/jobs/{id}
+
+Retrieve the full details of a single job by its unique ID. The response includes the associated pipeline stages and the current application count, giving you a complete snapshot of the role's state.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the job. Example: `job_1a2b3c4d`.
+</ParamField>
+
+### Request
+
+```bash
+curl https://api.ats-platform.com/v2/jobs/job_1a2b3c4d \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+```json
+{
+  "id": "job_1a2b3c4d",
+  "title": "Senior Software Engineer",
+  "department": "Engineering",
+  "location": "Remote",
+  "employment_type": "full-time",
+  "status": "active",
+  "description": "We are looking for a Senior Software Engineer to join our platform team...",
+  "salary_min": 120000,
+  "salary_max": 160000,
+  "pipeline_id": "pipe_eng_standard",
+  "pipeline_stages": [
+    { "id": "stage_001", "name": "Application Review", "order": 1 },
+    { "id": "stage_002", "name": "Phone Screen", "order": 2 },
+    { "id": "stage_003", "name": "Technical Interview", "order": 3 },
+    { "id": "stage_004", "name": "Offer", "order": 4 }
+  ],
+  "application_count": 47,
+  "created_at": "2025-06-01T09:00:00Z",
+  "updated_at": "2025-07-01T12:00:00Z"
+}
+```
+
+---
+
+## PUT /v2/jobs/{id}
+
+Update any fields on an existing job. All body fields are optional — include only the fields you want to change. You can also use this endpoint to transition a job's status through the allowed state machine:
+
+- `draft` → `active` (publish the job)
+- `active` → `on_hold` (temporarily pause applications)
+- `active` → `closed` (stop accepting new applications)
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the job to update.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="title" type="string">
+  Updated job title.
+</ParamField>
+
+<ParamField body="department" type="string">
+  Updated department name.
+</ParamField>
+
+<ParamField body="location" type="string">
+  Updated location.
+</ParamField>
+
+<ParamField body="employment_type" type="string">
+  Updated employment type. Accepted values: `full-time`, `part-time`, `contract`.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Updated job description.
+</ParamField>
+
+<ParamField body="salary_min" type="number">
+  Updated minimum salary.
+</ParamField>
+
+<ParamField body="salary_max" type="number">
+  Updated maximum salary.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Transition the job status. Accepted transitions: `draft` → `active`, `active` → `on_hold`, `active` → `closed`.
+</ParamField>
+
+### Request
+
+```bash
+curl -X PUT https://api.ats-platform.com/v2/jobs/job_1a2b3c4d \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "active",
+    "salary_max": 170000
+  }'
+```
+
+### Response
+
+```json
+{
+  "id": "job_1a2b3c4d",
+  "title": "Senior Software Engineer",
+  "department": "Engineering",
+  "location": "Remote",
+  "employment_type": "full-time",
+  "status": "active",
+  "salary_min": 120000,
+  "salary_max": 170000,
+  "application_count": 47,
+  "created_at": "2025-06-01T09:00:00Z",
+  "updated_at": "2025-07-15T11:30:00Z"
+}
+```
+
+---
+
+## DELETE /v2/jobs/{id}
+
+Archive a job listing. This is a soft delete — the job is not permanently removed from the system and can still be retrieved via `GET /v2/jobs?status=archived`. Archiving a job does not affect existing applications; candidates already in the pipeline continue to be processed normally.
+
+<Note>
+  The DELETE endpoint archives jobs rather than permanently deleting them. This preserves historical data for reporting and compliance purposes. Archived jobs are accessible by passing `?status=archived` to the `GET /v2/jobs` endpoint. If you need to permanently remove a job and all associated data, contact support.
+</Note>
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the job to archive.
+</ParamField>
+
+### Request
+
+```bash
+curl -X DELETE https://api.ats-platform.com/v2/jobs/job_1a2b3c4d \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+A successful archive returns `204 No Content` with an empty response body.
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Pipeline Stages" icon="list-check" href="/configuration/pipeline-stages">
+    Configure the hiring pipeline stages that jobs use to track candidates.
+  </Card>
+  <Card title="Applications API" icon="file-lines" href="/api/applications">
+    Move candidates through pipeline stages on a specific job.
+  </Card>
+</CardGroup>

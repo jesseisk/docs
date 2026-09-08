@@ -1,0 +1,183 @@
+---
+title: "ATS Platform Release Notes and Version History"
+sidebarTitle: "Release Notes"
+description: "Full version history for the ATS Platform, including new features, bug fixes, breaking changes, and upgrade guidance for every release."
+---
+
+This page documents every versioned release of the ATS Platform in reverse chronological order, so you always know what changed and when. The ATS Platform follows **semantic versioning** (MAJOR.MINOR.PATCH): a major version increment signals a breaking change that may require action on your part (such as updating API integrations or re-configuring settings); a minor version introduces new features in a backward-compatible way; and a patch version contains only bug fixes, performance improvements, or security updates. If you maintain an integration with the REST API, pay particular attention to major release notes before upgrading your environment. Upgrade guides for breaking changes are included inline.
+
+<Note>
+  **API v1 Deprecation Notice:** The REST API v1 has been deprecated as of the v2.0.0 release on 2025-04-15. API v1 will continue to function until **Q4 2025**, after which it will be removed entirely. All integrations must be migrated to REST API v2 before that date. Refer to the v2.0.0 upgrade notes below for full details on what changed. If you need help with migration, contact [support@atsplatform.io](mailto:support@atsplatform.io).
+</Note>
+
+## Version History
+
+<Accordion title="v2.1.0 — 2025-07-01">
+  ### What's New
+
+  **AI-Powered Candidate Scoring**
+  The ATS Platform now automatically scores inbound candidates against the requirements defined in your job postings. Scores appear as a percentage match on each candidate card in the pipeline view and can be used to sort or filter your applicant list. Scoring runs asynchronously after each application is submitted and refreshes if you update the job description. You can enable or disable this feature per job under **Job Settings → Candidate Scoring**.
+
+  **Bulk Email Actions**
+  You can now select multiple candidates across any pipeline stage and send a single templated email to all of them in one action. Bulk email respects per-candidate merge fields (first name, role title, interview date) and logs every delivery in each candidate's activity timeline. This is especially useful for sending status-update communications to large applicant pools. Navigate to **Candidates → Bulk Actions → Send Email** to get started.
+
+  **Webhook Retry Logic Improvements**
+  Webhook deliveries that fail with a 5xx response from your endpoint are now retried up to **five times** using an exponential backoff schedule (1 min, 5 min, 30 min, 2 hrs, 8 hrs). Previously, failed webhooks were retried only once after a fixed 10-minute delay. You can inspect delivery attempts and manually trigger a replay from **Settings → Webhooks → [Webhook Name] → Delivery Log**.
+
+  **Pipeline Stage Drag-and-Drop Reordering**
+  The pipeline configuration screen (**Settings → Pipeline Stages**) now supports direct drag-and-drop reordering of stages. Previously you had to use up/down arrow buttons to change stage order. Stage reordering is reflected immediately across all active jobs that share that pipeline.
+
+  ### Bug Fixes & Improvements
+  - Fixed an issue where calendar sync events were duplicated when a candidate rescheduled an interview.
+  - Resolved a race condition in offer letter PDF generation that occasionally produced blank signature fields.
+  - Improved loading time for the candidate list view when more than 500 applicants are present on a single job.
+  - Email open-tracking pixel now correctly handles candidate email clients that block external images, avoiding false negatives in the reporting dashboard.
+</Accordion>
+
+<Accordion title="v2.0.0 — 2025-04-15 (Major Release)">
+  ### What's New
+
+  **Redesigned Dashboard**
+  The main dashboard has been completely rebuilt with a focus on at-a-glance pipeline health. You now see a summary of all open roles, stage-by-stage candidate counts, upcoming interviews in the next 7 days, and a rolling time-to-hire metric — all on a single screen. Widgets can be rearranged to suit your workflow. The legacy dashboard is no longer accessible.
+
+  **New Candidate Timeline View**
+  Every candidate profile now includes a **Timeline** tab that displays a chronological, filterable log of every action taken on that candidate: application received, emails sent and opened, stage changes, interview completions, scorecard submissions, and offer events. This replaces the previous flat activity list and gives your team a much clearer narrative of the candidate's journey.
+
+  **REST API v2**
+  The ATS Platform REST API has been fully redesigned for v2. API v2 offers a consistent resource model, improved pagination using cursor-based navigation, richer response bodies (no more separate calls to fetch related objects), and full OpenAPI 3.1 documentation. See the [API Overview](/api/overview) for the base URL, rate limits, and a quick-start example.
+
+  ### ⚠️ Breaking Changes
+
+  <Warning>
+    v2.0.0 introduces breaking changes to API authentication. Review the upgrade notes below before deploying any integration update.
+  </Warning>
+
+  **API v1 Authentication Headers Changed to Bearer Token**
+  All REST API requests must now use a `Bearer` token in the `Authorization` header:
+
+  ```http
+  Authorization: Bearer YOUR_API_KEY
+  ```
+
+  The previous `X-API-Key: YOUR_API_KEY` header format used in API v1 is no longer accepted. API v1 endpoints remain available at their original paths until Q4 2025 (see deprecation notice above), but even API v1 requests must now use the `Bearer` header format.
+
+  **Removed Endpoints**
+  The following v1 endpoints were removed entirely in v2.0.0 and have no direct equivalent under the old path. Migrate to the v2 equivalents listed:
+
+  | Removed (v1)                  | Replacement (v2)               |
+  |-------------------------------|-------------------------------|
+  | `GET /v1/applicants`          | `GET /v2/candidates`           |
+  | `POST /v1/applicants`         | `POST /v2/candidates`          |
+  | `GET /v1/positions`           | `GET /v2/jobs`                 |
+  | `POST /v1/positions`          | `POST /v2/jobs`                |
+
+  **Pagination Format Changed**
+  v1 used page/per_page query parameters returning a `total_pages` field. v2 uses cursor-based pagination — responses include a `next_cursor` field that you pass as the `cursor` query parameter on the next request. Update any code that loops through paginated results.
+
+  ### Bug Fixes & Improvements
+  - Resolved a long-standing issue where email templates containing special characters in the subject line were occasionally mis-encoded.
+  - Fixed offer letter approval workflows that stalled when an approver's account was deactivated mid-process.
+</Accordion>
+
+<Accordion title="v1.5.0 — 2025-01-20">
+  ### What's New
+
+  **Calendar Sync — Google & Microsoft 365**
+  Recruiters and interviewers can now connect their Google Calendar or Microsoft 365 calendar from **Settings → Integrations → Calendar**. Once connected, interview events created in the ATS Platform are automatically added to all participants' calendars, and calendar conflicts are surfaced in real time during scheduling to prevent double-bookings. Candidates receive a calendar invite attachment alongside their confirmation email.
+
+  **Interview Templates**
+  You can now create reusable interview templates under **Configuration → Interview Templates**. Each template defines the interview format (phone screen, technical, panel, etc.), the scorecard criteria (scored dimensions and free-text feedback fields), and a suggested duration. Applying a template when scheduling an interview pre-fills the scorecard and ensures every interviewer on your panel evaluates candidates against the same criteria.
+
+  **PDF Offer Letter Export**
+  Offer letters can now be exported as formatted PDF documents from the offer detail screen. The PDF includes your organization's logo, the candidate's name, role title, compensation details, and signature fields for both the candidate and the hiring authority. PDFs are generated on demand and are available for download even after an offer has been accepted or declined.
+
+  ### Bug Fixes & Improvements
+  - Fixed a bug where the pipeline funnel chart on the reporting dashboard did not account for candidates who skipped stages.
+  - Resolved an issue with bulk CSV import where rows containing commas in quoted fields were parsed incorrectly.
+  - Interview confirmation emails now display the correct timezone for candidates located outside the organization's primary timezone.
+</Accordion>
+
+<Accordion title="v1.4.0 — 2024-10-05">
+  ### What's New
+
+  **Custom Candidate Statuses**
+  In addition to the built-in pipeline stages, you can now define custom statuses to capture nuanced candidate states that don't map to a stage change — for example, *Awaiting References*, *Background Check in Progress*, or *Offer Verbally Accepted*. Custom statuses appear on the candidate profile and can be used as filter criteria in the candidate list view. Create and manage them under **Settings → Candidate Statuses**.
+
+  **Bulk CSV Import**
+  Import large batches of candidates directly into the ATS Platform using a structured CSV file. The import wizard maps your CSV columns to ATS Platform fields, validates the data before committing, and reports any rows that failed validation. This is useful for migrating historical candidates from a previous ATS or loading referral batches sourced outside the platform. Access the importer from **Candidates → Import → Upload CSV**.
+
+  **Candidate Source Tracking**
+  Every candidate profile now records a **Source** field that captures how the applicant found the job posting — for example, LinkedIn, Indeed, Employee Referral, Direct, or a custom UTM parameter you defined on a job link. Source data is aggregated in the reporting dashboard under **Reports → Source Effectiveness**, giving you clear visibility into which channels produce the highest-quality applicants.
+
+  ### Bug Fixes & Improvements
+  - Fixed an edge case where inviting a team member with an uppercase email address caused a duplicate-account error.
+  - Resolved a performance regression in the candidate search index that caused slow results on organizations with more than 10,000 candidate records.
+</Accordion>
+
+<Accordion title="v1.3.0 — 2024-07-12">
+  ### What's New
+
+  **Reporting Dashboard**
+  The ATS Platform's first dedicated reporting section is now available at **Reports** in the main navigation. The initial release includes four built-in reports: *Pipeline Summary* (stage-by-stage candidate counts per job), *Time to Hire* (average days from application to offer acceptance), *Interviewer Activity* (scorecard completion rates per interviewer), and *Source Effectiveness* (applications and conversions by candidate source). All reports can be filtered by date range, department, and job.
+
+  **Funnel Analytics**
+  The new Funnel Analytics view visualizes how candidates move — and where they drop off — across every stage of your hiring pipeline. You can view funnel data at the organization level, per department, or per individual job. Hover over any stage bar to see the absolute count, the conversion rate from the previous stage, and the average time candidates spend in that stage.
+
+  **Email Open Tracking**
+  Emails sent to candidates through the ATS Platform now include an open-tracking pixel. When a candidate opens a tracked email, the event is logged in their activity timeline and counted in the email performance metrics visible under **Reports → Email Activity**. You can disable open tracking globally under **Settings → Email → Tracking**, or on a per-template basis.
+
+  ### Bug Fixes & Improvements
+  - Improved accessibility of the candidate pipeline board — stage columns are now fully keyboard-navigable.
+  - Fixed a rare issue where two recruiters editing the same candidate profile simultaneously could overwrite each other's notes.
+</Accordion>
+
+<Accordion title="v1.0.0 — 2024-03-01 (Initial Release)">
+  ### Overview
+
+  Welcome to the first public release of the ATS Platform. v1.0.0 establishes the core feature set that all future releases build upon.
+
+  **Job Management**
+  Create unlimited job postings with rich text descriptions, configurable application forms, and public or unlisted visibility. Manage your full job library from a searchable list view, and archive postings when a role is filled without permanently deleting historical data.
+
+  **Candidate Tracking**
+  Every applicant automatically receives a candidate profile containing their submitted application, résumé, and a contact record. Recruiters can add notes, tags, and manual activity entries to keep the team aligned on every candidate's status.
+
+  **Basic Pipeline**
+  Organize candidates through a linear pipeline of customizable stages. Move candidates between stages with a single click, and use the Kanban board view to get a visual overview of where everyone stands across all your open roles.
+
+  **User & Team Management**
+  Invite team members with one of four roles (HR Admin, Recruiter, Hiring Manager, Interviewer) and manage access from the Settings panel. Each role has a tailored view of the platform scoped to their responsibilities.
+
+  **REST API v1**
+  A first-generation REST API is available for integrations, covering job and applicant resources. Authentication uses the `X-API-Key` header.
+
+  <Info>
+    API v1 is deprecated as of v2.0.0. See the deprecation notice at the top of this page for timeline and migration details.
+  </Info>
+</Accordion>
+
+## Upgrade Notes: Migrating to v2.0
+
+If your organization is running v1.x of the ATS Platform (including a self-managed or private-cloud deployment), follow these steps to upgrade safely to v2.0.
+
+### Step 1 — Update API authentication headers
+
+Before switching any integration to the v2 base URL, update your HTTP client to send `Authorization: Bearer YOUR_API_KEY` instead of `X-API-Key: YOUR_API_KEY`. This change is required for both v1 and v2 endpoints going forward.
+
+### Step 2 — Migrate from removed v1 endpoints
+
+Replace all calls to removed v1 endpoints using the mapping table in the v2.0.0 release notes above. The v2 resource model uses cleaner, noun-based paths (`/v2/jobs`, `/v2/candidates`, `/v2/applications`) and returns richer response objects. Consult the [API reference pages](/api/overview) for full request/response schemas.
+
+### Step 3 — Update pagination logic
+
+If you have any integration code that loops through paginated API responses, replace page/per_page logic with cursor-based pagination. On each response, read the `next_cursor` field; if it is present, pass `?cursor={next_cursor}` on your next request. When `next_cursor` is null or absent, you have reached the last page.
+
+### Step 4 — Verify webhook endpoints
+
+With the improved retry logic introduced in v2.1.0, ensure your webhook consumer endpoint is idempotent — that is, receiving the same event payload more than once does not cause duplicate processing. Use the `id` field present on every webhook event object as a deduplication key. Review your registered webhooks under **Settings → Webhooks** and confirm all endpoint URLs are returning 2xx responses reliably.
+
+<Warning>
+  If you do not complete the API migration before Q4 2025, your integrations will break when API v1 is removed. Plan your migration well in advance and test against the v2 API in a staging environment before cutting over production traffic.
+</Warning>
+
+For migration assistance or to report a regression introduced by the v2.0.0 upgrade, contact the support team at [support@atsplatform.io](mailto:support@atsplatform.io) or visit the [Troubleshooting FAQ](/troubleshooting/faq).

@@ -1,0 +1,98 @@
+---
+title: "Email Templates Configuration Guide for ATS Platform"
+sidebarTitle: "Email Templates"
+description: "Create and customize candidate email templates, use dynamic placeholders, and configure automated sends tied to pipeline stage triggers in ATS Platform."
+---
+
+Email templates in ATS Platform allow you to standardize and automate every candidate communication across your hiring process — from the moment someone submits an application to the day they sign their offer letter. Templates can be sent manually by a recruiter at any point, or triggered automatically when a candidate enters a specific pipeline stage. Consistent, well-crafted emails improve your candidate experience, reduce the time your team spends writing individual messages, and ensure nothing slips through the cracks during a busy hiring cycle.
+
+## How Templates Work
+
+Every outgoing email in ATS Platform is powered by a template. There are two categories:
+
+- **System Templates** — Built-in templates provided by ATS Platform that are sent automatically at key points in the candidate lifecycle. These are always active and cover the most critical communications.
+- **Custom Templates** — Templates you create for your specific needs, such as a personalized screening invitation, a follow-up after a take-home assignment, or a branded rejection message.
+
+Templates support **placeholder variables** — dynamic tokens that are automatically replaced with real candidate and job data when the email is sent. This means you write one template and it personalizes itself for every recipient.
+
+## Built-In System Templates
+
+The following system templates are always active on your account and fire automatically based on candidate actions or recruiter activity. You can edit their content and subject lines, but you cannot delete or disable them (except where noted).
+
+- **Application Received** — Sent automatically when a candidate successfully submits an application through your careers page or a job board integration. Confirms receipt and sets expectations for next steps. This template **cannot be disabled** as it is required for candidate communication compliance.
+
+- **Interview Invitation** — Sent to the candidate when a recruiter schedules an interview from the candidate's profile. Includes the interview date, time, format (video link or in-person address), and the names of interviewers.
+
+- **Offer Letter** — Sent to the candidate when a recruiter finalizes and dispatches an offer. Includes a secure, unique `{{signing_link}}` that directs the candidate to the e-signature portal.
+
+- **Rejection Notice** — Sent when a recruiter moves a candidate to the **Rejected** status on their profile. By default this is a brief, professional note; you can customize it to reflect your employer brand and values.
+
+<Note>
+The **Application Received** template cannot be disabled. It is automatically sent for every application submitted through ATS Platform, including applications imported via API or CSV. This behavior is required to meet candidate communication compliance standards. You can, however, fully customize its subject line and body content.
+</Note>
+
+## Creating a Custom Email Template
+
+Custom templates give you full flexibility to craft communications for any point in your hiring process — whether that's a nurture email for top-of-funnel candidates, a technical challenge invitation, or a check-in after an offer has been extended.
+
+<Steps>
+  <Step title="Navigate to Settings → Email Templates → New Template">
+    Open **Settings** from the left navigation bar, select **Email Templates**, and click the **New Template** button in the top-right corner.
+  </Step>
+  <Step title="Enter a template name">
+    Provide an internal name for the template — this is visible only to your team and is not included in the email sent to candidates. Use a descriptive name that makes it easy to find later, such as `Engineering Take-Home Challenge Invite` or `Sales Role Rejection - Personalized`.
+  </Step>
+  <Step title="Set the subject line using placeholders">
+    Enter the email subject line in the **Subject** field. You can incorporate placeholder variables directly in the subject for personalization. For example:
+
+    ```
+    Your application for {{job_title}} at {{company_name}} — Next Steps
+    ```
+
+    See the [Placeholder Variables](#placeholder-variables) table below for a full list of available tokens.
+  </Step>
+  <Step title="Write the email body">
+    Use the rich-text editor to compose your email body. The editor supports:
+    - Bold, italic, underline, and bullet formatting
+    - Hyperlinks
+    - Inline placeholder variables (type `{{` to trigger the variable picker)
+    - Custom HTML (accessible via the **&lt;/&gt; Source** toggle for advanced users)
+
+    Write in a tone that matches your company's employer brand. Remember that this email represents your organization to every candidate who receives it.
+  </Step>
+  <Step title="Preview the rendered email">
+    Click **Preview** to see how the email will render for a real candidate. The preview mode populates all placeholder variables with sample data so you can verify that the formatting and personalization look correct before saving. You can also send a test email to your own address using the **Send Test** button.
+  </Step>
+  <Step title="Save and optionally assign to a pipeline stage trigger">
+    Click **Save Template**. Your template is now available for manual use from any candidate's profile. To have this template send automatically when a candidate enters a specific pipeline stage, navigate to **Settings → Pipelines**, open the relevant pipeline, click the settings icon on the target stage, and select your template under **Auto-Email Trigger**.
+  </Step>
+</Steps>
+
+## Placeholder Variables
+
+The following placeholder variables are available for use in both subject lines and email body content. ATS Platform replaces each token with live data from the candidate record and job posting at send time.
+
+| Variable | Description |
+|---|---|
+| `{{candidate_name}}` | Full name of the candidate as entered on their application |
+| `{{job_title}}` | Title of the job the candidate applied for |
+| `{{company_name}}` | Your organization's name as configured in Settings → Organization |
+| `{{interview_date}}` | Scheduled date and time of the interview, formatted in your organization's timezone |
+| `{{interviewer_name}}` | First and last name(s) of all assigned interviewers, comma-separated |
+| `{{offer_amount}}` | Base salary figure from the offer letter (formatted with currency symbol) |
+| `{{signing_link}}` | Secure, candidate-unique URL to the e-signature portal for offer letter signing |
+
+<Tip>
+Personalizing your rejection emails — even slightly — makes a meaningful difference to candidates and protects your employer brand. Instead of a generic "We have decided to move forward with other candidates," consider using `{{candidate_name}}` and `{{job_title}}` to acknowledge the specific role they applied for, thanking them for their time and encouraging them to apply again in the future. Candidates who receive a respectful, specific rejection are significantly more likely to recommend your company to others even though they didn't get the job.
+</Tip>
+
+## Managing Existing Templates
+
+From the **Email Templates** list view, you can:
+
+- **Edit** any template at any time — changes take effect immediately for future sends
+- **Duplicate** a template to use as a starting point for a new variation
+- **Archive** a custom template to remove it from the active list without permanently deleting it
+- **Restore** an archived template if you need it again
+
+System templates (Application Received, Interview Invitation, Offer Letter, Rejection Notice) are marked with a **System** badge and can be edited but not archived or deleted.

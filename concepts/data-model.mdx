@@ -1,0 +1,88 @@
+---
+title: "ATS Platform Data Model: Entities and Relationships"
+sidebarTitle: "Data Model"
+description: "Explore the six core entities in the ATS Platform data model — Jobs, Candidates, Applications, Interviews, Offers, and Pipeline Stages — and how they relate."
+---
+
+Every action you take in the ATS Platform — posting a job, reviewing a resume, scheduling an interview — creates or updates a structured record in the platform's data model. Understanding these core entities and how they relate to one another helps you navigate the platform more confidently, make better use of the API, and build integrations that map cleanly to your internal systems. This page defines each entity, describes the relationships between them, and explains the status lifecycles that govern how records move through the system.
+
+## Core Entities
+
+<CardGroup cols={2}>
+  <Card title="Job" icon="briefcase">
+    A Job represents a role your organization is actively hiring for — or has hired for in the past. Each Job record holds a title, department, location, employment type, compensation range, job description, and a reference to the Pipeline template being used. Jobs have their own status lifecycle (Draft → Active → On Hold → Closed) and serve as the central organizing entity that all other records connect to.
+  </Card>
+  <Card title="Candidate" icon="user">
+    A Candidate is a person who has applied to one of your jobs or been manually sourced into the system by your team. A Candidate record stores personal details, contact information, a parsed resume, any uploaded documents, and an application history that spans all the roles they've been considered for at your organization. One person has a single Candidate record, even if they've applied to multiple jobs.
+  </Card>
+  <Card title="Application" icon="file-lines">
+    An Application is the bridge between a Candidate and a Job. It is created automatically when someone submits a job application, or manually when a recruiter adds a sourced candidate to a role. The Application tracks the candidate's current pipeline stage, any scores assigned during review, the full activity log for that candidacy, and links to all related Interviews and Offers. One Candidate can have multiple Applications (one per job), but each Application belongs to exactly one Candidate and one Job.
+  </Card>
+  <Card title="Interview" icon="calendar-check">
+    An Interview is a scheduled meeting between a Candidate and one or more members of your team. Each Interview record stores the date, time, format (phone, video, on-site), the list of interviewers, a link to the calendar event, and a Scorecard where interviewers record structured ratings and written feedback. Interviews are always attached to a specific Application, so they're fully traceable back to both the Candidate and the Job.
+  </Card>
+  <Card title="Offer" icon="file-signature">
+    An Offer is a formal proposal of employment sent to a Candidate who has reached the final stage of your pipeline. Each Offer record contains the offer letter content (generated from a template), compensation details, start date, offer expiration date, and the current offer status (Pending Approval, Sent, Accepted, Declined, Rescinded). Offers are linked to a specific Application and capture the complete e-signature audit trail once sent to the candidate.
+  </Card>
+  <Card title="Pipeline Stage" icon="list-ol">
+    A Pipeline Stage is a named step in your hiring funnel — for example, "Applied," "Phone Screen," "Technical Interview," "Hiring Manager Review," or "Offer." Stages are defined on a Pipeline template and assigned to Jobs. Each Application sits in exactly one stage at any given time. Stages can be configured with automation rules that trigger actions (send an email, notify a user, move the candidate) when a candidate enters or exits the stage.
+  </Card>
+</CardGroup>
+
+## Entity Relationships
+
+The entities in the ATS Platform form a clear hierarchy. Understanding these relationships helps you query the API accurately and interpret platform reports correctly.
+
+- **One Job has many Applications.** Every time a candidate is considered for a role, a new Application is created under that Job. A Job can have zero to thousands of Applications.
+- **One Candidate has many Applications.** A single Candidate can apply to — or be sourced for — multiple Jobs over time. Each of those is a separate Application record, but all are linked back to the same Candidate profile.
+- **One Application belongs to one Candidate and one Job.** The Application is the join entity that connects the two, and it carries all the stage, score, and activity data specific to that candidacy.
+- **One Application has many Interviews.** A candidate typically goes through multiple rounds of interviews for a single job. Each round is a distinct Interview record attached to the same Application.
+- **One Application has at most one active Offer.** While an Offer can be rescinded and a new one issued, only one Offer is considered current at any time per Application.
+- **One Job uses one Pipeline, which has many Pipeline Stages.** The stages are ordered and define the path an Application follows from intake to hire or rejection.
+
+<Info>
+  When you access candidate data through the API, you'll nearly always start with an Application ID — it's the most precise identifier for a candidate's engagement with a specific role. Use the Candidate ID when you need cross-job history. See the [API overview](/api/overview) for endpoint details.
+</Info>
+
+## Status Lifecycles
+
+### Job Statuses
+
+| Status | Meaning |
+|--------|---------|
+| **Draft** | The job has been created but not yet published. It is not visible on your careers page or any job boards. Internal team members with access can view and edit it. |
+| **Active** | The job is published and accepting applications. It appears on all configured channels based on your distribution settings. |
+| **On Hold** | The job has been temporarily paused. It is removed from public job boards but retains all existing applications and pipeline data. You can reactivate it at any time. |
+| **Closed** | The job is no longer accepting applications and has been formally concluded — either because the role was filled, the headcount was cancelled, or the search was ended. Closed jobs are archived but remain accessible for historical reporting. |
+
+### Application Statuses
+
+| Status | Meaning |
+|--------|---------|
+| **New** | The application has been received and is waiting for initial review by the recruiting team. No action has been taken yet. |
+| **In Review** | A recruiter has opened and is actively evaluating the application. The candidate may have been scored or tagged, but has not yet been advanced to an interview stage. |
+| **Interview** | The candidate has been moved into one or more interview stages in the pipeline. At least one Interview record is attached to this Application. |
+| **Offer** | The hiring team has decided to extend an offer. An Offer record has been created and is in progress (pending approval, sent, or under negotiation). |
+| **Hired** | The candidate accepted the offer and has been marked as hired. The Application is closed successfully. |
+| **Rejected** | The candidate was not selected for this role. A rejection email may have been sent depending on your settings. The Application is closed with a negative disposition. |
+
+<Tip>
+  Rejected candidates are not deleted from your Candidate database. Their profile and application history are preserved, and you can re-engage them for future roles at any time — simply create a new Application linking them to a new Job.
+</Tip>
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Recruitment Workflow" icon="arrows-spin" href="/concepts/recruitment-workflow">
+    See how Applications move through stages and statuses during the full hiring lifecycle.
+  </Card>
+  <Card title="Pipeline Stages Configuration" icon="sliders" href="/configuration/pipeline-stages">
+    Create and customize the Pipeline Stages used across your Jobs.
+  </Card>
+  <Card title="API: Jobs" icon="code" href="/api/jobs">
+    Programmatically create and manage Job records via the REST API.
+  </Card>
+  <Card title="API: Candidates" icon="code" href="/api/candidates">
+    Query and update Candidate profiles and their linked Applications via the API.
+  </Card>
+</CardGroup>

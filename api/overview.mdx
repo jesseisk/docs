@@ -1,0 +1,128 @@
+---
+title: "ATS Platform REST API — Complete Overview"
+sidebarTitle: "API Overview"
+description: "Explore the ATS Platform REST API to automate job management, sync candidate data, trigger webhooks, and integrate with your existing tooling."
+---
+
+The ATS Platform REST API gives you programmatic access to every core feature of the platform — from creating and publishing job listings to moving candidates through pipeline stages, scheduling interviews, and listening for real-time events via webhooks. Whether you're building a custom integration, syncing data with an HRIS, or automating your hiring workflow, the API provides a consistent, predictable interface that follows standard REST conventions.
+
+## Base URL
+
+All API requests target version 2 of the API:
+
+```
+https://api.ats-platform.com/v2
+```
+
+<Warning>
+  **API v1 is deprecated** and will be permanently removed in **Q4 2025**. If you are still using `https://api.ats-platform.com/v1`, migrate your integrations to v2 as soon as possible. Refer to the v1 → v2 migration guide in the release notes for a full list of breaking changes.
+</Warning>
+
+## Request Format
+
+All request bodies must be sent as JSON. Include the `Content-Type: application/json` header on every request that sends a body (POST, PUT, PATCH):
+
+```bash
+curl -X POST https://api.ats-platform.com/v2/jobs \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Software Engineer", "department": "Engineering", "location": "Remote", "employment_type": "full-time"}'
+```
+
+All responses are returned as JSON with a `Content-Type: application/json` response header.
+
+## Explore the API
+
+Use the cards below to jump directly to the resource reference you need:
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api/authentication">
+    Learn how to generate API keys, assign scopes, and authenticate every request with a Bearer token.
+  </Card>
+  <Card title="Jobs API" icon="briefcase" href="/api/jobs">
+    Create, update, publish, and archive job listings programmatically with full CRUD support.
+  </Card>
+  <Card title="Candidates API" icon="user" href="/api/candidates">
+    Manage candidate profiles, upload resumes, and query candidates across your talent pipeline.
+  </Card>
+  <Card title="Applications API" icon="file-lines" href="/api/applications">
+    Link candidates to jobs, move applications through pipeline stages, and set terminal statuses.
+  </Card>
+</CardGroup>
+
+## Rate Limits
+
+The ATS Platform API enforces a rate limit of **1,000 requests per minute** per API key. Every API response includes the following headers so you can monitor your usage in real time:
+
+| Header | Description |
+|---|---|
+| `X-RateLimit-Remaining` | Number of requests remaining in the current 60-second window |
+| `X-RateLimit-Reset` | Unix timestamp (UTC) when the rate limit window resets |
+
+When you exceed the limit, the API returns a `429 Too Many Requests` response. Your integration should inspect the `X-RateLimit-Reset` header and wait until that timestamp before retrying. Implementing exponential backoff on 429 responses is strongly recommended for high-throughput integrations.
+
+## HTTP Status Codes
+
+The API uses standard HTTP status codes to communicate the result of every request. The table below lists every code you may encounter:
+
+| Code | Meaning |
+|---|---|
+| `200` | Success — the request completed as expected |
+| `201` | Resource created — the POST request succeeded and a new resource was returned |
+| `400` | Bad request — the request was malformed; check your request body and headers |
+| `401` | Unauthorized — the API key is missing, expired, or invalid |
+| `403` | Forbidden — the API key does not have the required scope for this operation |
+| `404` | Resource not found — the ID or path does not exist |
+| `422` | Validation error — the body structure is valid but field values failed validation; see the `errors` array |
+| `429` | Rate limit exceeded — you have sent too many requests; wait for the reset window |
+| `500` | Internal server error — an unexpected error occurred on our side; retry with backoff |
+
+## Error Response Format
+
+All error responses follow a consistent JSON envelope. The top-level `error` object contains a machine-readable `code`, a human-readable `message`, and — for validation errors — an `errors` array that pinpoints exactly which fields failed and why:
+
+```json
+{
+  "error": {
+    "code": "validation_error",
+    "message": "The request body contains invalid fields.",
+    "errors": [
+      { "field": "title", "message": "Title is required." }
+    ]
+  }
+}
+```
+
+Your integration should always check the `error.code` field to branch error-handling logic. Common codes include `unauthorized`, `forbidden`, `not_found`, `validation_error`, and `rate_limit_exceeded`.
+
+<Note>
+  Validation errors (`422`) always include an `errors` array with one entry per failing field. Parse this array to surface actionable feedback to your users rather than displaying the generic `message` string.
+</Note>
+
+## Pagination
+
+List endpoints return paginated results using `limit` and `offset` query parameters. Every paginated response includes a `meta` object:
+
+```json
+{
+  "data": [...],
+  "meta": {
+    "total": 238,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+To fetch the next page, increment `offset` by your `limit` value. The maximum `limit` on any list endpoint is `100`.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Make your first authenticated API call in under five minutes.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/api/webhooks">
+    Subscribe to real-time events so your systems react instantly to hiring activity.
+  </Card>
+</CardGroup>

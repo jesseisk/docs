@@ -1,0 +1,135 @@
+---
+title: "Scheduling and Managing Interviews in ATS"
+sidebarTitle: "Interviews"
+description: "Learn how to schedule interviews, sync calendars, use scorecards for structured feedback, and manage interview templates in the ATS Platform."
+---
+
+The Interviews module brings together scheduling, calendar coordination, and structured feedback collection into a single workflow. Rather than juggling separate calendar invites, email threads, and spreadsheet scorecards, the ATS Platform lets you schedule interviews directly from a candidate's profile, automatically generate video conferencing links, check interviewer availability in real time, and collect scorecard feedback — all without leaving the platform. This keeps your interview process consistent, your team coordinated, and your hiring decisions well-documented.
+
+<Info>
+  The Interviews tab on a candidate profile lists all scheduled and completed interviews for that candidate, showing the interview type, assigned interviewers, date and time, meeting link, and current status (Upcoming, Completed, or Cancelled). A scorecard submission status indicator is shown for each completed interview.
+</Info>
+
+## Scheduling an Interview
+
+You can schedule an interview from any candidate profile. The scheduling flow guides you through selecting the interview type, assigning interviewers, choosing a time, and sending invites — all in one streamlined form.
+
+<Steps>
+  <Step title="Open the Candidate Profile and Navigate to Interviews">
+    Find the candidate in the Candidates module and click their name to open their profile. Click the **Interviews** tab near the top of the profile page. You will see a list of any previously scheduled interviews, along with their status (Upcoming, Completed, Cancelled).
+  </Step>
+  <Step title="Click 'Schedule Interview'">
+    Click the **+ Schedule Interview** button. A scheduling panel will open, either as a side drawer or a full-screen form depending on your screen size. Select the job application this interview is associated with if the candidate has multiple active applications.
+  </Step>
+  <Step title="Select the Interview Type">
+    Choose the type of interview from the dropdown:
+    - **Phone Screen** — a preliminary screening call, typically 20–30 minutes
+    - **Video Call** — a structured remote interview via video conferencing
+    - **On-site** — an in-person interview at your office location
+    - **Technical Assessment** — a live coding or skills-based evaluation
+    - **Panel Interview** — multiple interviewers in a single session
+
+    Each interview type has an associated default duration and scorecard template, which you can override.
+  </Step>
+  <Step title="Choose Interviewers">
+    In the **Interviewers** field, search for and select one or more team members from your organization. You can add up to 8 interviewers per interview session. Each selected interviewer will receive a calendar invite and will be expected to submit a scorecard after the interview.
+  </Step>
+  <Step title="Select a Date and Time">
+    Use the scheduling calendar to select a date. The platform displays a combined availability view for all selected interviewers, based on their connected calendars. Time slots where all interviewers are free are shown in green; partially unavailable slots are shown in amber; fully blocked slots are shown in grey. Click any available slot to select it. You can also type a specific time manually if needed.
+  </Step>
+  <Step title="Add a Meeting Link">
+    Select your preferred video conferencing provider from the **Meeting Link** dropdown:
+    - **Zoom** — generates a unique Zoom meeting link automatically (requires Zoom integration)
+    - **Google Meet** — generates a Google Meet link via your connected Google account
+    - **Microsoft Teams** — generates a Teams meeting link via your connected Microsoft 365 account
+    - **Custom Link** — paste any meeting URL, including Webex, BlueJeans, or a phone dial-in number
+
+    For on-site interviews, enter the office address and room name in the **Location** field instead.
+  </Step>
+  <Step title="Send Calendar Invites">
+    Review the interview summary — type, interviewers, date/time, duration, meeting link, and the interview template to be used for scorecards. Click **Send Invites** to dispatch calendar invitations to both the candidate and all selected interviewers simultaneously. The candidate receives an email with the interview details and a calendar attachment (.ics file). Each interviewer receives a calendar event with a link to their scorecard.
+  </Step>
+</Steps>
+
+<Info>
+  The interview scheduling form presents a side-drawer panel with fields for Interview Type, Interviewers (with a multi-select team member search), and a calendar availability grid that color-codes time slots by interviewer availability — green for fully free, amber for partially blocked, and grey for unavailable. A Meeting Link dropdown lets you auto-generate a Zoom, Google Meet, or Microsoft Teams link, and a summary section previews the full invite details before sending.
+</Info>
+
+## Calendar Sync
+
+Connecting your team's calendars allows the platform to display real-time availability when scheduling interviews, preventing double-bookings and eliminating the back-and-forth of finding a mutually free slot.
+
+To connect a calendar, navigate to **Settings → Integrations → Calendar** and follow the instructions for your provider:
+
+<CardGroup cols={2}>
+  <Card title="Google Calendar" icon="google">
+    Click **Connect Google Calendar** and sign in with your Google account. Grant the requested calendar read/write permissions. The platform reads your availability from all calendars in your Google account and creates interview events in your primary calendar.
+  </Card>
+  <Card title="Microsoft Outlook" icon="microsoft">
+    Click **Connect Microsoft Outlook** and authenticate with your Microsoft 365 account. The integration uses Microsoft Graph API to read availability from Exchange/Outlook and creates interview events in your default Outlook calendar.
+  </Card>
+</CardGroup>
+
+Once connected, your calendar is synced every 15 minutes. Each team member must connect their own calendar individually from their personal account settings. Admins can view which team members have connected their calendars under **Settings → Team → Calendar Status**.
+
+<Note>
+  When you reschedule an interview by editing its date, time, or location, the ATS Platform automatically sends updated calendar invitations to the candidate and all interviewers. The original calendar event is updated in place — attendees do not receive a cancellation followed by a new invite. Any notes or custom message you add during rescheduling are included in the updated invite email.
+</Note>
+
+## Interview Scorecards
+
+Scorecards provide a structured, consistent format for interviewers to record their assessments after each interview. Instead of collecting unstructured written feedback over email, scorecards ensure that every interviewer evaluates candidates against the same criteria, making it easier to compare candidates and defend hiring decisions.
+
+**How scorecards work:**
+
+1. After an interview is scheduled, each interviewer receives a link to their individual scorecard in both their calendar invite and a reminder email sent 30 minutes after the interview ends.
+2. The interviewer opens the scorecard and rates the candidate on each competency defined in the interview template (e.g., Communication, Technical Skill, Problem Solving). Ratings use a 1–5 scale with optional written comments per criterion.
+3. The interviewer adds an overall recommendation: **Strong Yes**, **Yes**, **Neutral**, **No**, or **Strong No**.
+4. The interviewer clicks **Submit Scorecard**. The submission is immediately visible to the hiring team on the candidate's profile under the **Interviews** tab.
+5. Scorecard submissions are aggregated into an overall score displayed on the candidate profile, making it easy to compare multiple candidates for the same role.
+
+Pending scorecard submissions appear as Task Reminders on the dashboard for the assigned interviewer until completed.
+
+## Interview Templates
+
+Interview templates define the set of questions and evaluation criteria used in a scorecard for a given interview type. By creating templates, you ensure that every candidate for a role is evaluated consistently — regardless of who conducts the interview.
+
+**To create an interview template:**
+
+1. Navigate to **Settings → Interview Templates → + New Template**.
+2. Give the template a name (e.g., "Engineering Phone Screen") and select the interview type it applies to.
+3. Add evaluation categories (e.g., "Technical Knowledge", "Communication Skills", "Culture Fit").
+4. Within each category, add specific questions or criteria for the interviewer to assess.
+5. Set the rating scale for each criterion (1–5 stars, Yes/No, or a custom text field).
+6. Click **Save Template**.
+
+Once created, templates appear in the **Interview Template** dropdown when scheduling an interview. You can assign a default template per interview type per job, so the correct scorecard is always pre-selected.
+
+<Info>
+  The interview template editor shows a form with the template name and interview type at the top, followed by a list of evaluation categories (e.g., "Technical Knowledge," "Communication Skills," "Culture Fit"). Each category can be expanded to add individual scoring criteria, with a rating scale selector per criterion — 1–5 stars, Yes/No, or a custom text field. A drag handle on each category allows reordering, and a "+ Add Category" button appends new sections.
+</Info>
+
+<Warning>
+  When you cancel a scheduled interview, the candidate automatically receives a cancellation email notifying them that the interview has been removed from the schedule. This email is sent immediately upon cancellation and cannot be suppressed. If you need to reschedule rather than cancel, use the **Reschedule** option instead — this updates the existing interview without triggering a cancellation notice. To customize the cancellation email content, go to [Email Templates](/configuration/email-templates).
+</Warning>
+
+## Interviews Module Overview
+
+Beyond individual candidate profiles, the **Interviews** module (accessible from the main navigation) gives you a centralized view of all scheduled interviews across your entire team. You can filter by date range, job, interviewer, or interview type to find specific sessions. The module also highlights interviews where scorecards are still pending, helping managers ensure feedback is collected in a timely manner.
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Candidate Management" icon="users" href="/manual/candidate-management">
+    Manage candidate profiles, move pipeline stages, and track application history.
+  </Card>
+  <Card title="Offers & Hiring" icon="file-signature" href="/manual/offers-and-hiring">
+    Create and send offer letters once a candidate has cleared interviews.
+  </Card>
+  <Card title="Integrations" icon="plug" href="/configuration/integrations">
+    Connect Zoom, Google Calendar, Microsoft Teams, and other tools.
+  </Card>
+  <Card title="Analytics" icon="chart-bar" href="/manual/reporting-analytics">
+    View interviewer activity reports and scorecard completion rates.
+  </Card>
+</CardGroup>

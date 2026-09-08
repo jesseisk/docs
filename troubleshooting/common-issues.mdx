@@ -1,0 +1,143 @@
+---
+title: "Common Issues and Fixes for ATS Platform Users"
+sidebarTitle: "Common Issues"
+description: "Step-by-step resolutions for the most frequent ATS Platform errors including login failures, API errors, calendar sync issues, and CSV import problems."
+---
+
+This page documents the most commonly reported issues in ATS Platform along with their likely causes and step-by-step resolution instructions. Each issue is self-contained — jump to the one you're experiencing using the accordion below. If you work through the steps and the problem persists, contact our support team via the in-app chat and share the error message or screenshot; our team can access diagnostic logs to help you faster.
+
+<AccordionGroup>
+
+  <Accordion title="Can't log in / account locked">
+    **Likely cause:** Accounts are automatically locked after **5 consecutive failed login attempts** within a 10-minute window as a security measure. Your account may also be locked if an Admin has manually deactivated it, or if a security policy violation was detected.
+
+    **Resolution:**
+
+    1. **Check for a lockout email** — When your account is locked due to failed attempts, ATS Platform sends an automated email to your registered address explaining the lockout and including an unlock link. Click that link to immediately unlock your account without waiting.
+    2. **Wait for the automatic cooldown** — Lockouts due to failed attempts automatically expire after **30 minutes**. After that period, you can attempt to log in again.
+    3. **Reset your password** — If you've forgotten your password, click **Forgot Password** on the login screen to trigger a password reset email. See [FAQ: How do I reset my password?](/troubleshooting/faq) for full steps.
+    4. **Contact your Admin** — If you believe your account has been deactivated by an Admin (you will see an "Account inactive" message rather than "Account locked"), contact your organization's ATS Platform Admin to have your account reactivated from **Settings → Team Members**.
+    5. **Check SSO configuration** — If your organization uses SAML 2.0 SSO and you are seeing authentication errors, the issue may lie with your identity provider session. Try logging out of your SSO provider (Okta, Azure AD, etc.) completely and logging back in before attempting to access ATS Platform again. Contact your IT team if the SSO error persists.
+
+    For persistent access issues, contact ATS Platform support with your email address and organization name.
+  </Accordion>
+
+  <Accordion title="Job not appearing on careers page">
+    **Likely cause:** The job exists in ATS Platform but is either in Draft or Closed status, or your careers page URL has not been properly configured in organization settings.
+
+    **Resolution:**
+
+    1. **Check the job's status** — Navigate to **Jobs** and find the job in question. Look at the **Status** column. Only jobs with **Active** status are visible on your public careers page. If the status is **Draft**, open the job and click **Publish**. If it is **Closed**, you can re-open it from **Job Settings → Change Status → Active**.
+    2. **Verify your careers page URL is configured** — Navigate to **Settings → Organization** and confirm that a **Careers Page URL** or slug has been entered and saved. If this field is blank, your careers page has no live URL and no jobs will appear publicly.
+    3. **Check for a visibility filter** — Some jobs can be set to **Internal Only**, meaning they are posted only on your internal job board, not the public careers page. Open the job's **Settings** tab and check the **Visibility** field. Change it to **Public** if external visibility is required.
+    4. **Allow for propagation delay** — After changing a job to Active, allow up to 5 minutes for the change to propagate to your public careers page. Hard-refresh your browser (`Ctrl+Shift+R` / `Cmd+Shift+R`) to bypass any local cache.
+    5. **Check custom domain DNS** — If you use a custom domain (e.g., `careers.yourcompany.com`) and jobs are not appearing, verify that your DNS records are correctly pointing to ATS Platform. Navigate to **Settings → Organization → Custom Domain** for the required DNS values and verification status.
+  </Accordion>
+
+  <Accordion title="Calendar invites not sending">
+    **Likely cause:** Either the calendar integration is not connected, the connected user lacks the necessary calendar permissions, or the interviewer has not individually connected their own calendar.
+
+    **Resolution:**
+
+    1. **Verify the integration is connected** — Go to **Settings → Integrations** and check that the Google Calendar or Microsoft Outlook tile displays a green **Connected** status. If it shows an error or disconnected state, click the tile and re-authorize the connection.
+    2. **Check per-interviewer calendar connections** — Calendar invites are sent on behalf of individual interviewers, not the organization as a whole. Each interviewer must independently connect their calendar under **Profile → Integrations → Calendar**. Confirm that the specific interviewer experiencing the issue has their calendar connected.
+    3. **Verify calendar write permissions** — During the OAuth authorization step, the user must grant ATS Platform permission to **create and manage events**. If they only granted read access (free/busy only), invites cannot be sent. The affected user should navigate to **Profile → Integrations → Calendar** and click **Reconnect** to re-authorize with full permissions.
+    4. **Check the interviewer's email address** — Calendar invites are sent to the email address on the interviewer's ATS Platform profile. Ensure this matches their actual calendar account email. A mismatch (e.g., name alias vs. primary address) can cause delivery failures.
+    5. **Check for Google Workspace or Exchange admin restrictions** — In some enterprise environments, Google Workspace or Microsoft Exchange admins restrict third-party app access to calendars. If you've confirmed all settings above are correct, ask your IT admin to verify that the ATS Platform OAuth app is permitted in your organization's admin console.
+
+    Related: [Integrations](/configuration/integrations)
+  </Accordion>
+
+  <Accordion title="Candidate not receiving application confirmation email">
+    **Likely cause:** The confirmation email may have been caught by the candidate's spam filter, the Application Received template may have been misconfigured, or there could be a deliverability issue with the candidate's email domain.
+
+    **Resolution:**
+
+    1. **Ask the candidate to check their spam/junk folder** — Automated emails from new senders are frequently filtered as spam. Ask the candidate to search their spam folder for an email from your domain or from `noreply@atsplatform.com`. If found, they should mark it as "Not Spam" to ensure future emails are delivered normally.
+    2. **Verify the Application Received template is configured** — Navigate to **Settings → Email Templates** and open the **Application Received** system template. Confirm that the subject line and body are filled in correctly and that no broken placeholder variables exist (broken placeholders appear as literal `{{variable_name}}` text rather than resolved values).
+    3. **Check for a hard bounce** — Open the candidate's profile in ATS Platform and look for a **Bounce** badge next to their email address. A hard bounce indicates the email address is invalid. Contact the candidate by other means to obtain a correct email address and update their profile.
+    4. **Check your sending domain configuration** — If multiple candidates are reporting missing confirmation emails, there may be an SPF, DKIM, or DMARC configuration issue with your sending domain. Navigate to **Settings → Organization → Email Sending** to view your domain's deliverability health status. Contact support if you see any authentication failures listed.
+    5. **Resend the confirmation manually** — From the candidate's profile, navigate to the **Emails** tab and click **Resend Application Confirmation** to trigger a fresh send of the Application Received email.
+  </Accordion>
+
+  <Accordion title="API returns 401 Unauthorized">
+    **Likely cause:** Your API request is missing the `Authorization` header, using an incorrect token format, or the API key has been revoked or expired.
+
+    **Resolution:**
+
+    1. **Verify the Authorization header format** — ATS Platform uses Bearer token authentication. Your `Authorization` header must be formatted exactly as:
+       ```
+       Authorization: Bearer YOUR_API_KEY_HERE
+       ```
+       Common mistakes include omitting the word `Bearer`, adding extra spaces, or passing the key as a query parameter instead of a header.
+
+    2. **Confirm you are using the correct API key** — Navigate to **Settings → Integrations → REST API** to view your active API keys and their labels. Ensure the key in your application matches one of the active keys shown. If the key was generated in a different environment (e.g., a sandbox account), it will not work against your production account.
+
+    3. **Check whether the key has been revoked** — If the key is not listed in the Active Keys section, it has been revoked. Generate a new key, update your application's configuration, and retry.
+
+    4. **Verify you are hitting the correct base URL** — Ensure your requests are targeting `https://api.atsplatform.com/v1/` and not a stale or test URL.
+
+    For full authentication documentation including code examples, see [API Authentication](/api/authentication).
+  </Accordion>
+
+  <Accordion title="API returns 429 Too Many Requests">
+    **Likely cause:** Your integration or application is sending requests faster than ATS Platform's rate limit allows.
+
+    **Resolution:**
+
+    ATS Platform enforces a rate limit of **1,000 requests per minute** per API key. If you exceed this limit, the API returns a `429 Too Many Requests` response until the current window resets.
+
+    1. **Check the `Retry-After` header** — The `429` response includes a `Retry-After` header indicating the number of seconds you must wait before making another request. Honor this value in your retry logic rather than immediately retrying, which will only continue to trigger `429` responses.
+
+    2. **Implement exponential backoff** — If your application does not already have retry logic, implement exponential backoff: wait 1 second before the first retry, 2 seconds before the second, 4 seconds before the third, and so on, with a cap of around 60 seconds.
+
+    3. **Audit your request volume** — Review your integration's behavior to understand why it is generating so many requests. Common causes include polling for changes too frequently (use webhooks instead for event-driven updates), fetching records one at a time instead of using paginated list endpoints, or a bug causing infinite loops.
+
+    4. **Use webhooks for real-time updates** — If you are polling the API to detect new applications, stage changes, or offer events, switch to [webhooks](/api/webhooks) instead. Webhooks push events to your server as they happen, eliminating the need for high-frequency polling.
+
+    5. **Contact support for a rate limit increase** — If your legitimate use case requires more than 1,000 requests per minute, contact your ATS Platform account manager to discuss Enterprise-tier rate limit options.
+  </Accordion>
+
+  <Accordion title="CSV import failing">
+    **Likely cause:** The CSV file is missing required columns, contains encoding issues, or exceeds the row limit.
+
+    **Resolution:**
+
+    1. **Use the official template** — Always start from the official ATS Platform CSV template, which you can download from **Candidates → Import → Download CSV Template**. This guarantees the correct column headers and formatting.
+
+    2. **Verify required columns are present** — The following columns are required and must not be empty for any row:
+       - `first_name`
+       - `last_name`
+       - `email`
+       - `job_id` (the internal ATS Platform ID of the job, found in the job's URL)
+
+    3. **Check file encoding** — The CSV must be encoded in **UTF-8**. Files saved in other encodings (Windows-1252, Latin-1, etc.) may cause character corruption or import failures, especially if candidate names contain accented characters or non-Latin scripts. In Microsoft Excel, use **File → Save As → CSV UTF-8 (Comma delimited)** to export correctly. In Google Sheets, use **File → Download → CSV** — Sheets exports in UTF-8 by default.
+
+    4. **Stay within the row limit** — Each import is limited to **500 rows**. If you need to import more than 500 candidates, split your file into batches of 500 or fewer and import them sequentially. The [Candidates API](/api/candidates) supports bulk creation without this limit for programmatic imports.
+
+    5. **Review the validation error report** — After uploading, ATS Platform shows a **Validation Report** before the import is confirmed. Each failed row includes an error message (e.g., "Invalid email format", "Job ID not found"). Fix the flagged rows in your CSV and re-upload.
+
+    6. **Do not include special formatting** — Ensure the CSV has no merged cells, no header rows beyond the first row, no trailing commas, and no formula-generated values. Plain text values only.
+  </Accordion>
+
+  <Accordion title="Offer letter PDF not generating">
+    **Likely cause:** The offer letter template contains unsupported special characters, a required placeholder variable is missing its value, or the candidate's profile is incomplete.
+
+    **Resolution:**
+
+    1. **Check for unsupported characters in the template** — Certain Unicode characters — including fancy quotation marks (`"` `"`), em dashes (`—`) copied from word processors, and non-standard bullet symbols — can cause PDF rendering to fail. Open the offer template in **Settings → Email Templates**, review the body for any copy-pasted content from Microsoft Word or Google Docs, and replace special characters with their plain-text equivalents.
+
+    2. **Verify all required fields have values** — Before generating, ATS Platform validates that every placeholder variable in the offer template has a corresponding value. If `{{offer_amount}}` is in your template but no salary figure has been entered for this offer, generation will fail. Open the offer creation dialog and ensure all fields — especially **Base Salary**, **Start Date**, and **Job Title** — are filled in.
+
+    3. **Check the candidate's profile for missing required fields** — `{{candidate_name}}` requires both a first and last name on the candidate record. If either is missing, the PDF generator will return an error. Update the candidate's profile with complete information before retrying.
+
+    4. **Try regenerating the PDF** — From the candidate's profile, open the offer record and click **Regenerate PDF**. This clears any cached rendering state and attempts a fresh generation.
+
+    5. **Test with a simpler template** — If the issue is difficult to isolate, create a minimal offer template with no placeholder variables and generate a test PDF to confirm the base PDF engine is working. Then add placeholders back one at a time to identify which one is causing the failure.
+
+    If none of the above resolves the issue, contact support and provide the offer ID (visible in the URL when viewing the offer) so our team can review the render logs.
+
+    Related: [Email Templates](/configuration/email-templates)
+  </Accordion>
+
+</AccordionGroup>

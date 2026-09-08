@@ -1,0 +1,113 @@
+---
+title: "Reporting and Analytics for Recruiting Teams"
+sidebarTitle: "Analytics"
+description: "Learn how to generate, filter, and export recruiting reports — from candidate funnel analysis to offer acceptance rates and interviewer activity."
+---
+
+The Analytics module gives your recruiting team and leadership the data they need to understand and continuously improve the hiring process. Rather than building reports manually in spreadsheets, the ATS Platform automatically captures every action taken across jobs, candidates, interviews, and offers — and surfaces that data in a library of pre-built reports that you can filter, customize, and export on demand. Whether you are trying to understand where candidates are dropping out of your pipeline, which sourcing channels deliver the best hires, or how quickly your team moves from job posting to signed offer, the Analytics module has a dedicated report for each question.
+
+<Info>
+  The Analytics module's Candidate Funnel report displays a horizontal funnel chart showing the number of candidates at each pipeline stage alongside the conversion rate between consecutive stages. A summary statistics panel above the chart highlights total applications, overall pipeline conversion rate, and the stage with the highest drop-off, helping teams quickly identify where candidates are stalling.
+</Info>
+
+## Available Reports
+
+The following reports are available in the Analytics module. Each report can be filtered by date range, department, job, and team member unless otherwise noted.
+
+| Report | Description |
+|---|---|
+| **Candidate Funnel** | Shows the number of candidates at each pipeline stage and the conversion rate between consecutive stages. Use this report to identify where candidates are stalling or dropping out most frequently, and to benchmark your funnel performance over time. |
+| **Source Effectiveness** | Breaks down the volume of applications, qualified candidates, and hires attributed to each sourcing channel — LinkedIn, Indeed, Glassdoor, Referral, Careers Page, Agency, and Direct Sourcing. Helps you allocate recruiting budget to the highest-performing channels. |
+| **Time to Hire** | Calculates the average number of days from job posting date to the date a candidate was marked as Hired, broken down by department, job, or recruiter. Also shows time spent in each individual pipeline stage, helping you spot process delays. |
+| **Offer Acceptance Rate** | Tracks the percentage of sent offers that were accepted (Signed) versus declined or expired. Segmented by role, department, salary range, and time period. A declining acceptance rate may indicate compensation misalignment or a poor candidate experience late in the process. |
+| **Interviewer Activity** | Displays the number of interviews conducted and scorecards submitted by each team member over a selected period. Use this to monitor interview load distribution and identify interviewers with outstanding scorecard submissions. |
+| **Pipeline Health** | A real-time snapshot of the current number of candidates in each stage across all active jobs. Unlike other reports, Pipeline Health reflects live data rather than historical aggregates, giving you an at-a-glance view of where your pipeline stands right now. |
+
+## Generating and Exporting a Report
+
+<Steps>
+  <Step title="Navigate to Analytics">
+    Click **Analytics** in the left navigation sidebar. The Analytics module opens, defaulting to the Candidate Funnel report. The left panel lists all available report types; click any report name to switch views.
+  </Step>
+  <Step title="Select a Report">
+    Click the name of the report you want to generate from the left panel. The main area of the page updates to display the report visualization (bar chart, funnel chart, table, or line graph depending on the report type) and a summary statistics panel at the top.
+  </Step>
+  <Step title="Apply Filters">
+    Use the filter bar above the report to narrow the data to the scope you need:
+    - **Date Range** — set a start and end date, or choose a preset range (Last 30 Days, Last Quarter, Last 12 Months, All Time)
+    - **Department** — filter to a specific team or business unit
+    - **Job** — filter to one or more specific job postings
+    - **Team Member** — filter by recruiter, hiring manager, or interviewer
+    - **Source** (where applicable) — filter by candidate sourcing channel
+
+    Filters are applied cumulatively — you can combine multiple filters to create highly specific views, such as "Time to Hire for the Engineering department in Q3 from LinkedIn candidates."
+  </Step>
+  <Step title="Run the Report">
+    Click **Run Report** to apply your selected filters and generate the report. For large datasets, this may take a few seconds. The report visualization and underlying data table will update to reflect your filter selections. You can adjust filters and re-run the report as many times as needed without losing your current view.
+  </Step>
+  <Step title="Export the Report">
+    Once the report is generated, click the **Export** button in the top-right corner of the report view. Choose your preferred format:
+    - **CSV** — downloads a raw data file suitable for further analysis in Excel, Google Sheets, or a BI tool
+    - **PDF** — downloads a formatted report document suitable for sharing with leadership or stakeholders
+
+    The exported file reflects exactly the data shown on screen with your current filters applied. Exports are processed immediately for most reports; very large exports (over 10,000 rows) are queued and delivered to your email within a few minutes.
+  </Step>
+</Steps>
+
+<Info>
+  The report filter bar spans the top of every Analytics report and contains dropdown controls for Date Range, Department, Job, Team Member, and Source. Applied filters appear as removable pill badges. The Export button in the top-right corner opens a format picker (CSV or PDF), and the "Last Updated" timestamp beside it shows exactly when the report data was last refreshed.
+</Info>
+
+## Dashboard Widgets
+
+You can pin any report chart directly to your main dashboard so that key metrics are visible every time you log in — without having to navigate to the Analytics module and re-apply filters.
+
+**To pin a chart to your dashboard:**
+
+1. Generate the report with the filters configured as you want them to appear on your dashboard.
+2. Click the **Pin to Dashboard** button (the pushpin icon) in the top-right corner of the chart panel.
+3. Give the pinned widget a name (e.g., "Q4 Candidate Funnel — Engineering") and click **Pin**.
+4. The chart now appears as a widget on your main dashboard. Pinned widgets update on the same refresh schedule as the underlying report.
+
+You can pin up to 6 report charts to your dashboard simultaneously. To remove a pinned chart, go to your dashboard, enter edit mode, and click the unpin icon on the widget. This removes it from your dashboard but does not affect the report in the Analytics module.
+
+<Note>
+  Reports in the Analytics module refresh automatically every **4 hours** to reflect the latest candidate, interview, and offer data. If you need to see the most current data immediately — for example, before a hiring committee meeting — click the **Refresh Now** button at the top of the report page. This forces an immediate data refresh for that report. The "Last Updated" timestamp in the top-right corner of every report shows exactly when the data was last refreshed, so you always know the recency of what you are viewing.
+</Note>
+
+## Interpreting Key Metrics
+
+Understanding what the numbers in each report actually mean helps you draw the right conclusions and take the right actions.
+
+<Accordion title="Candidate Funnel Conversion Rates">
+  The Candidate Funnel report shows the percentage of candidates who advance from one stage to the next. A typical healthy funnel might show 40–60% conversion from Application Review to Phone Screen, 60–80% from Phone Screen to Interview, and 20–40% from Interview to Offer. If you see unusually low conversion at a particular stage, investigate whether the screening criteria are miscalibrated, the interview process is too demanding, or candidate expectations are being mismanaged.
+</Accordion>
+
+<Accordion title="Time to Hire Benchmarks">
+  Industry benchmarks for time to hire vary by role type: technical and specialized roles average 35–50 days, while operational and administrative roles typically close in 20–30 days. The Time to Hire report's stage-level breakdown helps you identify whether slowdowns are caused by candidate availability, interviewer scheduling delays, approval bottlenecks, or slow offer generation.
+</Accordion>
+
+<Accordion title="Source Effectiveness ROI">
+  The Source Effectiveness report shows not just the volume of candidates per source but the yield — how many resulted in hires. A source that generates many applicants but few hires may not be worth continued investment. Compare cost-per-hire (factoring in job board fees) against hire quality (retention data from your HRIS, if connected) to make fully informed sourcing decisions.
+</Accordion>
+
+<Accordion title="Offer Acceptance Rate Warning Signs">
+  An offer acceptance rate below 75% is generally a signal worth investigating. Common causes include: compensation offers falling below market rate, a negative late-stage candidate experience, competing offers arriving before yours, or a poor cultural fit discovered during the offer conversation. Use the Offer Acceptance Rate report segmented by salary range and department to isolate patterns.
+</Accordion>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Dashboard" icon="gauge" href="/manual/dashboard">
+    Pin report charts to your dashboard for at-a-glance recruiting metrics.
+  </Card>
+  <Card title="Job Management" icon="briefcase" href="/manual/job-management">
+    Manage job postings whose data flows into pipeline and funnel reports.
+  </Card>
+  <Card title="Candidate Management" icon="users" href="/manual/candidate-management">
+    Review individual candidate records that make up your aggregate report data.
+  </Card>
+  <Card title="Offers & Hiring" icon="file-signature" href="/manual/offers-and-hiring">
+    Track offers whose acceptance data appears in the Offer Acceptance Rate report.
+  </Card>
+</CardGroup>
